@@ -12,6 +12,9 @@
       <thead>
         <tr>
           <th>Equipo</th>
+          <th>Ganados</th>
+          <th>Empatados</th>
+          <th>Perdidos</th>
           <th>Goles a favor</th>
           <th>Goles en contra</th>
           <th>Diferencia de goles</th>
@@ -152,9 +155,24 @@
           const local = p.equipo_local.nombre;
           const visitante = p.equipo_visitante.nombre;
 
-          if (!(local in equipos)) equipos[local] = { gf: 0, gc: 0, puntos: 0 };
+          if (!(local in equipos))
+            equipos[local] = {
+              gf: 0,
+              gc: 0,
+              puntos: 0,
+              ganados: 0,
+              empatados: 0,
+              perdidos: 0,
+            };
           if (!(visitante in equipos))
-            equipos[visitante] = { gf: 0, gc: 0, puntos: 0 };
+            equipos[visitante] = {
+              gf: 0,
+              gc: 0,
+              puntos: 0,
+              ganados: 0,
+              empatados: 0,
+              perdidos: 0,
+            };
 
           if (p.resultado_local !== null && p.resultado_visitante !== null) {
             equipos[local].gf += p.resultado_local;
@@ -164,11 +182,17 @@
 
             if (p.resultado_local > p.resultado_visitante) {
               equipos[local].puntos += 2;
+              equipos[local].ganados += 1;
+              equipos[visitante].perdidos += 1;
             } else if (p.resultado_local < p.resultado_visitante) {
               equipos[visitante].puntos += 2;
+              equipos[visitante].ganados += 1;
+              equipos[local].perdidos += 1;
             } else {
               equipos[local].puntos += 1;
               equipos[visitante].puntos += 1;
+              equipos[local].empatados += 1;
+              equipos[visitante].empatados += 1;
             }
           }
         });
@@ -184,12 +208,15 @@
           .forEach(([equipo, stats]) => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-          <td>${equipo}</td>
-          <td>${stats.gf}</td>
-          <td>${stats.gc}</td>
-          <td>${stats.gf - stats.gc}</td>
-          <td>${stats.puntos}</td>
-        `;
+        <td>${equipo}</td>
+        <td>${stats.gf}</td>
+        <td>${stats.gc}</td>
+        <td>${stats.gf - stats.gc}</td>
+        <td>${stats.ganados}</td>
+        <td>${stats.empatados}</td>
+        <td>${stats.perdidos}</td>
+        <td>${stats.puntos}</td>
+      `;
             tbody.appendChild(tr);
           });
       }
