@@ -1,72 +1,216 @@
-/* estilos.css */
+/* -------------------- Tipografía y fuente -------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
 
-/* Tipografía y fondo general */
-body {
-  font-family: "Titillium Web", Verdana, sans-serif;
-  background-color: #f4f6f8;
-  color: #333;
+* {
+  box-sizing: border-box;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
 
-/* Título principal */
-h1 {
+body {
+  font-family: 'Titillium Web', sans-serif;
+  font-size: 16px;        /* legible en móviles */
+  line-height: 1.5;
+  background-color: #f4f6f8;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------------------- Contenedor -------------------- */
+.container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
   text-align: center;
-  color: #000000;
+  padding: 0 10px;
+}
+
+/* -------------------- Títulos -------------------- */
+h1 {
+  color: #000;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 2rem; /* más grande y legible */
+}
+
+/* -------------------- Formulario -------------------- */
+form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   margin-bottom: 30px;
 }
 
-/* Estilo de la tabla */
-#tabla-partidos {
+form label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+form input,
+form select {
   width: 100%;
-  border-collapse: collapse;
-  background-color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-/* Encabezado de la tabla */
-#tabla-partidos thead {
-  background-color: #006ba1;
-  color: rgb(255, 209, 0);
-}
-
-#tabla-partidos th, #tabla-partidos td {
   padding: 12px 15px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1.1em;
 }
 
-/* Filas alternas */
-#tabla-partidos tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-/* Hover sobre filas */
-#tabla-partidos tbody tr:hover {
-  background-color: #e3f2fd;
-}
-
-/* Botones */
 button {
   background-color: #006ba1;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: auto;        
+  display: block;       
+  margin: 10px auto 0 auto;
+  margin-top: 10px;
+  font-size: 1.1em;
 }
 
 button:hover {
-  background-color: rgb(255, 209, 0);
+  background-color: #ffd100;
+  color: #006ba1;
 }
 
-/* Responsive: tabla scroll en móviles */
-@media (max-width: 768px) {
-  #tabla-partidos {
+/* -------------------- Tablas -------------------- */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+thead {
+  background-color: #006ba1;
+  color: #ffd100;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 1em;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #e3f2fd;
+  transition: background-color 0.2s;
+}
+
+th.descansa, td.descansa {
+  font-weight: 600;
+  color: #006ba1;
+}
+
+#select-partido {
+  width: 100%;           
+  padding: 12px 15px;     
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1.1em;       
+  background-color: #fff;
+  color: #000;
+  appearance: none;       
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+#select-partido {
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23006ba1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 6px;
+}
+
+/* -------------------- Tablas convertidas a tarjetas en móviles -------------------- */
+@media (max-width: 480px) {
+  table, thead, tbody, th, td, tr {
     display: block;
-    overflow-x: auto;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    margin-bottom: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    font-size: 1em;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 45%;
+    padding-right: 10px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 1em;
+  }
+}
+
+/* -------------------- Ajustes para tablet y desktop -------------------- */
+@media (max-width: 481px) {
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+  }
+
+  form input, form select {
+    max-width: 300px;
+  }
+
+  button {
+    width: auto;
+    padding: 12px 25px;
+  }
+
+  table {
+    font-size: 1em;
+    min-width: 600px;
+  }
+
+    #select-partido {
+    max-width: 300px;
+    font-size: 16px;
+    padding: 12px 15px;
+    margin: 10px auto; 
+    display: block;
   }
 }

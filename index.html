@@ -7,82 +7,222 @@
     <link rel="stylesheet" href="estilos.css" />
   </head>
   <body>
-    <h1>Calendario de partidos</h1>
-    <table border="1" id="tabla-partidos">
+    <h1>Clasificación</h1>
+    <table id="tabla-clasificacion" class="table-wrapper">
       <thead>
         <tr>
-          <th>Fecha</th>
-          <th>Lugar</th>
-          <th>Equipo Local</th>
-          <th>Equipo Visitante</th>
-          <th>Resultado</th>
-          <th>Acción</th>
+          <th>Equipo</th>
+          <th>Goles a favor</th>
+          <th>Goles en contra</th>
+          <th>Diferencia de goles</th>
+          <th>Puntos</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
 
-    <script>
+    <h1>Calendario de partidos</h1>
+    <table id="tabla-partidos" class="table-wrapper">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Ubicación</th>
+          <th>Equipo local</th>
+          <th>Equipo visitante</th>
+          <th>Estado</th>
+          <th>Descansan</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h1>Editor de resultados</h1>
+    <form id="form-resultado">
+      <label
+        >Partido:
+        <select id="select-partido"></select>
+      </label>
+      <br />
+      <label
+        >Goles equipo local:
+        <input type="number" id="goles-local" min="0" />
+      </label>
+      <br />
+      <label
+        >Goles equipo visitante:
+        <input type="number" id="goles-visitante" min="0" />
+      </label>
+      <br />
+      <button type="submit">Confirmar resultado</button>
+    </form>
+
+    <script type="module">
+      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
       const SUPABASE_URL = "https://ouekofkdhejydaopitjt.supabase.co";
       const SUPABASE_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      async function cargarPartidos() {
-        const { data: partidos } = await supabase
-          .from("partidos")
-          .select(
-            "id, fecha, lugar, resultado_local, resultado_visitante, jugado"
-          );
+      function formatearFecha(fecha) {
+        const d = new Date(fecha);
+        const dia = String(d.getDate()).padStart(2, "0");
+        const mes = String(d.getMonth() + 1).padStart(2, "0");
+        const anio = d.getFullYear();
+        return `${dia}-${mes}-${anio}`;
+      }
 
-        const tbody = document.querySelector("#tabla-partidos tbody");
-        tbody.innerHTML = "";
+      // ---------- CARGAR PARTIDOS ----------
+      async function cargarPartidos() {
+        const { data: partidos, error } = await supabase.from("partidos")
+          .select(`
+        id,
+        fecha,
+        lugar,
+        resultado_local,
+        resultado_visitante,
+        equipo_local (nombre),
+        equipo_visitante (nombre)
+      `);
+
+        if (error) return console.error(error);
+
+        // Ordenar por fecha de más reciente a más futuro
+        partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+        // Obtener lista de todos los equipos
+        const equiposSet = new Set();
+        partidos.forEach((p) => {
+          equiposSet.add(p.equipo_local.nombre);
+          equiposSet.add(p.equipo_visitante.nombre);
+        });
+        const todosEquipos = Array.from(equiposSet);
+
+        // Tabla de calendario
+        const tbodyPartidos = document.querySelector("#tabla-partidos tbody");
+        tbodyPartidos.innerHTML = "";
+
+        // Select para editor de resultados
+        const selectPartido = document.querySelector("#select-partido");
+        selectPartido.innerHTML = "";
 
         partidos.forEach((p) => {
+          const estado =
+            p.resultado_local !== null && p.resultado_visitante !== null
+              ? "Jugado"
+              : "Pendiente";
+
+          // Equipos que descansan en este partido
+          const descansan = todosEquipos.filter(
+            (e) =>
+              e !== p.equipo_local.nombre && e !== p.equipo_visitante.nombre
+          );
+
           const tr = document.createElement("tr");
-
           tr.innerHTML = `
-          <td>${p.fecha}</td>
-          <td>${p.lugar}</td>
-          <td>${p.equipo_local.nombre}</td>
-          <td>${p.equipo_visitante.nombre}</td>
-          <td>${
-            p.jugado
-              ? `${p.resultado_local} - ${p.resultado_visitante}`
-              : "Pendiente"
-          }</td>
-          <td>
-            <button onclick="editarResultado(${p.id}, ${
-            p.resultado_local ?? 0
-          }, ${p.resultado_visitante ?? 0})">Editar</button>
-          </td>
-        `;
+        <td>${formatearFecha(p.fecha)}</td>
+        <td>${p.lugar}</td>
+        <td>${p.equipo_local.nombre}</td>
+        <td>${p.equipo_visitante.nombre}</td>
+        <td>${estado}</td>
+        <td>${descansan.join(", ")}</td>
+      `;
+          tbodyPartidos.appendChild(tr);
 
-          tbody.appendChild(tr);
+          const option = document.createElement("option");
+          option.value = p.id;
+          option.textContent = `${p.equipo_local.nombre} vs ${
+            p.equipo_visitante.nombre
+          } (${formatearFecha(p.fecha)})`;
+          option.dataset.local = p.equipo_local.nombre;
+          option.dataset.visitante = p.equipo_visitante.nombre;
+          option.dataset.golesLocal = p.resultado_local ?? "";
+          option.dataset.golesVisitante = p.resultado_visitante ?? "";
+          selectPartido.appendChild(option);
         });
+
+        cargarClasificacion(partidos);
       }
 
-      async function editarResultado(id, local, visitante) {
-        const nuevoLocal = prompt("Goles equipo local:", local);
-        const nuevoVisitante = prompt("Goles equipo visitante:", visitante);
+      // ---------- CALCULAR CLASIFICACION ----------
+      function cargarClasificacion(partidos) {
+        const equipos = {};
 
-        if (nuevoLocal !== null && nuevoVisitante !== null) {
-          if (
-            confirm(`Confirmar resultado: ${nuevoLocal} - ${nuevoVisitante}`)
-          ) {
-            await supabase
-              .from("partidos")
-              .update({
-                resultado_local: nuevoLocal,
-                resultado_visitante: nuevoVisitante,
-                jugado: true,
-              })
-              .eq("id", id);
+        partidos.forEach((p) => {
+          const local = p.equipo_local.nombre;
+          const visitante = p.equipo_visitante.nombre;
 
-            cargarPartidos();
+          if (!(local in equipos)) equipos[local] = { gf: 0, gc: 0, puntos: 0 };
+          if (!(visitante in equipos))
+            equipos[visitante] = { gf: 0, gc: 0, puntos: 0 };
+
+          if (p.resultado_local !== null && p.resultado_visitante !== null) {
+            equipos[local].gf += p.resultado_local;
+            equipos[local].gc += p.resultado_visitante;
+            equipos[visitante].gf += p.resultado_visitante;
+            equipos[visitante].gc += p.resultado_local;
+
+            if (p.resultado_local > p.resultado_visitante) {
+              equipos[local].puntos += 2;
+            } else if (p.resultado_local < p.resultado_visitante) {
+              equipos[visitante].puntos += 2;
+            } else {
+              equipos[local].puntos += 1;
+              equipos[visitante].puntos += 1;
+            }
           }
-        }
+        });
+
+        const tbody = document.querySelector("#tabla-clasificacion tbody");
+        tbody.innerHTML = "";
+        Object.entries(equipos)
+          .sort(
+            (a, b) =>
+              b[1].puntos - a[1].puntos ||
+              b[1].gf - b[1].gc - (a[1].gf - a[1].gc)
+          )
+          .forEach(([equipo, stats]) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+          <td>${equipo}</td>
+          <td>${stats.gf}</td>
+          <td>${stats.gc}</td>
+          <td>${stats.gf - stats.gc}</td>
+          <td>${stats.puntos}</td>
+        `;
+            tbody.appendChild(tr);
+          });
       }
+
+      // ---------- EDITOR DE RESULTADOS ----------
+      const form = document.getElementById("form-resultado");
+      const selectPartido = document.getElementById("select-partido");
+      const golesLocalInput = document.getElementById("goles-local");
+      const golesVisitanteInput = document.getElementById("goles-visitante");
+
+      selectPartido.addEventListener("change", () => {
+        const option = selectPartido.selectedOptions[0];
+        golesLocalInput.value = option.dataset.golesLocal;
+        golesVisitanteInput.value = option.dataset.golesVisitante;
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = selectPartido.value;
+        const golesLocal = parseInt(golesLocalInput.value);
+        const golesVisitante = parseInt(golesVisitanteInput.value);
+
+        const { error } = await supabase
+          .from("partidos")
+          .update({
+            resultado_local: golesLocal,
+            resultado_visitante: golesVisitante,
+          })
+          .eq("id", id);
+
+        if (error) return console.error(error);
+        cargarPartidos();
+      });
 
       cargarPartidos();
     </script>
