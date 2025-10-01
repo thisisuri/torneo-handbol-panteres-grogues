@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Torneo Handbol</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <h1>Calendario de partidos</h1>
+    <table border="1" id="tabla-partidos">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Lugar</th>
+          <th>Equipo Local</th>
+          <th>Equipo Visitante</th>
+          <th>Resultado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      const SUPABASE_URL = "https://ouekofkdhejydaopitjt.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      async function cargarPartidos() {
+        const { data: partidos } = await supabase
+          .from("partidos")
+          .select(
+            "id, fecha, lugar, resultado_local, resultado_visitante, jugado, equipo_local(nombre), equipo_visitante(nombre)"
+          );
+
+        const tbody = document.querySelector("#tabla-partidos tbody");
+        tbody.innerHTML = "";
+
+        partidos.forEach((p) => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+          <td>${p.fecha}</td>
+          <td>${p.lugar}</td>
+          <td>${p.equipo_local.nombre}</td>
+          <td>${p.equipo_visitante.nombre}</td>
+          <td>${
+            p.jugado
+              ? `${p.resultado_local} - ${p.resultado_visitante}`
+              : "Pendiente"
+          }</td>
+          <td>
+            <button onclick="editarResultado(${p.id}, ${
+            p.resultado_local ?? 0
+          }, ${p.resultado_visitante ?? 0})">Editar</button>
+          </td>
+        `;
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function editarResultado(id, local, visitante) {
+        const nuevoLocal = prompt("Goles equipo local:", local);
+        const nuevoVisitante = prompt("Goles equipo visitante:", visitante);
+
+        if (nuevoLocal !== null && nuevoVisitante !== null) {
+          if (
+            confirm(`Confirmar resultado: ${nuevoLocal} - ${nuevoVisitante}`)
+          ) {
+            await supabase
+              .from("partidos")
+              .update({
+                resultado_local: nuevoLocal,
+                resultado_visitante: nuevoVisitante,
+                jugado: true,
+              })
+              .eq("id", id);
+
+            cargarPartidos();
+          }
+        }
+      }
+
+      cargarPartidos();
+    </script>
+  </body>
+</html>
