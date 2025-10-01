@@ -9,7 +9,7 @@
 
 body {
   font-family: 'Titillium Web', sans-serif;
-  font-size: 16px;        /* legible en móviles */
+  font-size: 16px;
   line-height: 1.5;
   background-color: #f4f6f8;
   min-height: 100vh;
@@ -147,6 +147,38 @@ th.descansa, td.descansa {
   background-position: right 10px center;
   background-size: 10px 6px;
 }
+
+.cover-container {
+  position: relative;
+  width: 100%;
+  height: 400px; /* altura de la portada */
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+/* Imagen de portada */
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* mantiene proporción y llena el contenedor */
+  display: block;
+  filter: brightness(0.7); /* oscurece un poco la imagen para el título */
+}
+
+/* Título sobre la imagen */
+.cover-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+  font-family: 'Titillium Web', sans-serif;
+}
+
 
 /* -------------------- Tablas convertidas a tarjetas en móviles -------------------- */
 @media (max-width: 480px) {
