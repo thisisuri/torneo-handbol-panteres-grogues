@@ -26,13 +26,13 @@
       const SUPABASE_URL = "https://ouekofkdhejydaopitjt.supabase.co";
       const SUPABASE_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
-      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
       async function cargarPartidos() {
         const { data: partidos } = await supabase
           .from("partidos")
           .select(
-            "id, fecha, lugar, resultado_local, resultado_visitante, jugado, equipo_local(nombre), equipo_visitante(nombre)"
+            "id, fecha, lugar, resultado_local, resultado_visitante, jugado"
           );
 
         const tbody = document.querySelector("#tabla-partidos tbody");
