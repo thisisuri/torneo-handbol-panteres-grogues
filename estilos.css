@@ -1,0 +1,72 @@
+/* estilos.css */
+
+/* Tipografía y fondo general */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Título principal */
+h1 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 30px;
+}
+
+/* Estilo de la tabla */
+#tabla-partidos {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Encabezado de la tabla */
+#tabla-partidos thead {
+  background-color: #006ba1;
+  color: rgb(255, 209, 0);
+}
+
+#tabla-partidos th, #tabla-partidos td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Filas alternas */
+#tabla-partidos tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover sobre filas */
+#tabla-partidos tbody tr:hover {
+  background-color: #e3f2fd;
+}
+
+/* Botones */
+button {
+  background-color: #006ba1;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: rgb(255, 209, 0);
+}
+
+/* Responsive: tabla scroll en móviles */
+@media (max-width: 768px) {
+  #tabla-partidos {
+    display: block;
+    overflow-x: auto;
+  }
+}
