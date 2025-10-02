@@ -10,7 +10,7 @@
 body {
   font-family: 'Titillium Web', sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   background-color: #f4f6f8;
   min-height: 100vh;
   padding: 20px;
@@ -21,7 +21,7 @@ body {
 /* -------------------- Contenedor -------------------- */
 .container {
   width: 100%;
-  max-width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   text-align: center;
   padding: 0 10px;
@@ -33,7 +33,37 @@ h1 {
   margin-top: 30px;
   margin-bottom: 20px;
   font-weight: 700;
-  font-size: 2rem; /* más grande y legible */
+  font-size: 32px;
+  line-height: 1.3;
+}
+
+h2 {
+  color: #006ba1;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+/* -------------------- Párrafos y listas -------------------- */
+p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+ul {
+  margin-bottom: 20px;
+  padding-left: 20px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+ul li {
+  margin-bottom: 8px;
+  line-height: 1.5;
 }
 
 /* -------------------- Formulario -------------------- */
@@ -49,7 +79,7 @@ form label {
   display: block;
   margin-bottom: 12px;
   font-weight: 600;
-  font-size: 1.1em;
+  font-size: 16px;
 }
 
 form input,
@@ -59,7 +89,7 @@ form select {
   margin-top: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  font-size: 1.1em;
+  font-size: 16px;
 }
 
 button {
@@ -71,11 +101,9 @@ button {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  width: auto;        
-  display: block;       
+  display: block;
   margin: 10px auto 0 auto;
-  margin-top: 10px;
-  font-size: 1.1em;
+  font-size: 16px;
 }
 
 button:hover {
@@ -87,7 +115,6 @@ button:hover {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -97,6 +124,7 @@ table {
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   border-radius: 10px;
   overflow: hidden;
+  font-size: 16px;
 }
 
 thead {
@@ -108,7 +136,6 @@ th, td {
   padding: 12px 10px;
   text-align: center;
   border-bottom: 1px solid #ddd;
-  font-size: 1em;
 }
 
 tbody tr:nth-child(even) {
@@ -120,68 +147,116 @@ tbody tr:hover {
   transition: background-color 0.2s;
 }
 
-th.descansa, td.descansa {
-  font-weight: 600;
-  color: #006ba1;
-}
-
-#select-partido {
-  width: 100%;           
-  padding: 12px 15px;     
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 1.1em;       
-  background-color: #fff;
-  color: #000;
-  appearance: none;       
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-  margin-top: 5px;
-  font-size: 13px;
-}
-
-#select-partido {
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23006ba1'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px 6px;
-}
-
+/* -------------------- Portada -------------------- */
 .cover-container {
   position: relative;
   width: 100%;
-  height: 400px; /* altura de la portada */
+  height: 400px;
   overflow: hidden;
   margin-bottom: 30px;
 }
 
-/* Imagen de portada */
 .cover-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* mantiene proporción y llena el contenedor */
+  object-fit: cover;
   display: block;
-  filter: brightness(0.7); /* oscurece un poco la imagen para el título */
+  filter: brightness(0.7);
 }
 
-/* Título sobre la imagen */
 .cover-title {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 3rem;
+  font-size: 48px;
   font-weight: bold;
   text-align: center;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-  font-family: 'Titillium Web', sans-serif;
 }
 
+/* -------------------- Pestañas -------------------- */
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+}
 
-/* -------------------- Tablas convertidas a tarjetas en móviles -------------------- */
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: #eee;
+  font-weight: bold;
+}
+
+.tab.active {
+  background: #006ba1;
+  color: #ffd100;
+}
+
+.tab-content {
+  display: none;
+  margin-top: 20px;
+  font-size: 16px !important;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* -------------------- Equipos -------------------- */
+.equipo {
+  margin-bottom: 30px;
+}
+
+.equipo h2 {
+  margin-bottom: 10px;
+  color: #006ba1;
+  font-size: 20px !important;
+}
+
+.equipo ul {
+  list-style: none;
+  padding: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.equipo li {
+  margin: 3px 0;
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px !important;
+}
+
+/* -------------------- Reglamento -------------------- */
+#reglamento h2 {
+  font-size: 20px !important;
+  color: #006ba1;
+}
+
+#reglamento ul li {
+  font-size: 16px !important;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  padding-left: 5px;
+}
+
+/* -------------------- Select partido -------------------- */
+#select-partido {
+  font-size: 16px !important;
+}
+
+/* -------------------- Responsive -------------------- */
 @media (max-width: 480px) {
+  h1 { font-size: 28px !important; }
+  h2 { font-size: 20px !important; }
+  p, li { font-size: 16px !important; }
+
   table, thead, tbody, th, td, tr {
     display: block;
     width: 100%;
@@ -203,7 +278,6 @@ th.descansa, td.descansa {
     text-align: right;
     padding-left: 50%;
     position: relative;
-    font-size: 1em;
   }
 
   td::before {
@@ -214,35 +288,5 @@ th.descansa, td.descansa {
     padding-right: 10px;
     font-weight: 600;
     text-align: left;
-    font-size: 1em;
-  }
-}
-
-/* -------------------- Ajustes para tablet y desktop -------------------- */
-@media (max-width: 481px) {
-  h1 {
-    font-size: clamp(1.8rem, 4vw, 2.2rem);
-  }
-
-  form input, form select {
-    max-width: 300px;
-  }
-
-  button {
-    width: auto;
-    padding: 12px 25px;
-  }
-
-  table {
-    font-size: 1em;
-    min-width: 600px;
-  }
-
-    #select-partido {
-    max-width: 300px;
-    font-size: 16px;
-    padding: 12px 15px;
-    margin: 10px auto; 
-    display: block;
   }
 }

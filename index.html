@@ -16,58 +16,136 @@
       <div class="cover-title">Torneo Handbol 2025</div>
     </div>
 
-    <h1>Clasificación</h1>
-    <table id="tabla-clasificacion" class="table-wrapper">
-      <thead>
-        <tr>
-          <th>Equipo</th>
-          <th>Ganados</th>
-          <th>Empatados</th>
-          <th>Perdidos</th>
-          <th>Goles a favor</th>
-          <th>Goles en contra</th>
-          <th>Diferencia de goles</th>
-          <th>Puntos</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- PESTAÑAS -->
+    <div class="tabs">
+      <div class="tab" data-tab="clasificacion">Clasificación</div>
+      <div class="tab" data-tab="calendario">Calendario de partidos</div>
+      <div class="tab" data-tab="reglamento">Reglamento</div>
+      <div class="tab" data-tab="equipos">Equipos</div>
+      <div class="tab" data-tab="acta">Acta del partido</div>
+    </div>
 
-    <h1>Calendario de partidos</h1>
-    <table id="tabla-partidos" class="table-wrapper">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Ubicación</th>
-          <th>Equipo local</th>
-          <th>Equipo visitante</th>
-          <th>Estado</th>
-          <th>Descansan</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- CONTENIDO DE PESTAÑAS -->
+    <div id="clasificacion" class="tab-content">
+      <h1>Clasificación</h1>
+      <table id="tabla-clasificacion" class="table-wrapper">
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Ganados</th>
+            <th>Empatados</th>
+            <th>Perdidos</th>
+            <th>Goles a favor</th>
+            <th>Goles en contra</th>
+            <th>Diferencia de goles</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-    <h1>Editor de resultados</h1>
-    <form id="form-resultado">
-      <label
-        >Partido:
-        <select id="select-partido"></select>
-      </label>
-      <br />
-      <label
-        >Goles equipo local:
-        <input type="number" id="goles-local" min="0" />
-      </label>
-      <br />
-      <label
-        >Goles equipo visitante:
-        <input type="number" id="goles-visitante" min="0" />
-      </label>
-      <br />
-      <button type="submit">Confirmar resultado</button>
-    </form>
+    <div id="calendario" class="tab-content">
+      <h1>Calendario de partidos</h1>
+      <table id="tabla-partidos" class="table-wrapper">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Ubicación</th>
+            <th>Equipo local</th>
+            <th>Equipo visitante</th>
+            <th>Estado</th>
+            <th>Descansan</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
+    <div id="reglamento" class="tab-content">
+      <h1>Reglamento del Torneo de Handbol 2025</h1>
+
+      <h2>Formación de equipos</h2>
+      <ul>
+        <li>
+          Se formarán 4 equipos. Cada capitán seleccionará a los integrantes de
+          su equipo, y las personas restantes serán asignadas para completar los
+          equipos.
+        </li>
+        <li>
+          Cada equipo debe tener un nombre para identificarse en la tabla de
+          clasificación.
+        </li>
+      </ul>
+
+      <h2>Sistema de juego</h2>
+      <ul>
+        <li>
+          El torneo se jugará bajo un sistema de todos contra todos, con fixture
+          y tabla de puntos.
+        </li>
+        <li>
+          El torneo tiene una duración de 6 semanas, seguidas de una final.
+        </li>
+        <li>
+          El sorteo de enfrentamientos se realizará la primera semana para
+          facilitar la planificación de agendas de todes les participantes.
+        </li>
+      </ul>
+
+      <h2>Organización y arbitraje</h2>
+      <ul>
+        <li>
+          Los equipos serán organizados por Xavi, el entrenador del torneo.
+        </li>
+        <li>
+          Un miembro de cada equipo que no tenga partido en la jornada actuará
+          como árbitro y anotador de tantos.
+        </li>
+      </ul>
+
+      <h2>Reglas de asistencia</h2>
+      <ul>
+        <li>Los partidos se jugarán en Marbella, los días viernes.</li>
+        <li>
+          Es obligatorio jugar al menos un partido. La ausencia injustificada
+          perjudica a tu equipo.
+        </li>
+        <li>
+          Quienes estén lesionad@s estarán exent@s de cumplir la asistencia
+          obligatoria.
+        </li>
+      </ul>
+    </div>
+
+    <div id="equipos" class="tab-content">
+      <h1>Equipos</h1>
+      <div id="lista-equipos"></div>
+    </div>
+
+    <div id="acta" class="tab-content">
+      <h1>Editor de resultados</h1>
+      <form id="form-resultado">
+        <label>
+          Partido:
+          <select id="select-partido"></select>
+        </label>
+        <br />
+        <label>
+          Goles equipo local:
+          <input type="number" id="goles-local" min="0" />
+        </label>
+        <br />
+        <label>
+          Goles equipo visitante:
+          <input type="number" id="goles-visitante" min="0" />
+        </label>
+        <br />
+        <button type="submit">Confirmar resultado</button>
+      </form>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -76,6 +154,7 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+      // ---------- FUNCIONES AUXILIARES ----------
       function formatearFecha(fecha) {
         const d = new Date(fecha);
         const dia = String(d.getDate()).padStart(2, "0");
@@ -88,21 +167,12 @@
       async function cargarPartidos() {
         const { data: partidos, error } = await supabase.from("partidos")
           .select(`
-        id,
-        fecha,
-        lugar,
-        resultado_local,
-        resultado_visitante,
-        equipo_local (nombre),
-        equipo_visitante (nombre)
-      `);
-
+          id, fecha, lugar, resultado_local, resultado_visitante,
+          equipo_local (nombre), equipo_visitante (nombre)
+        `);
         if (error) return console.error(error);
 
-        // Ordenar por fecha de más reciente a más futuro
         partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-        // Obtener lista de todos los equipos
         const equiposSet = new Set();
         partidos.forEach((p) => {
           equiposSet.add(p.equipo_local.nombre);
@@ -110,12 +180,9 @@
         });
         const todosEquipos = Array.from(equiposSet);
 
-        // Tabla de calendario
         const tbodyPartidos = document.querySelector("#tabla-partidos tbody");
         tbodyPartidos.innerHTML = "";
-
-        // Select para editor de resultados
-        const selectPartido = document.querySelector("#select-partido");
+        const selectPartido = document.getElementById("select-partido");
         selectPartido.innerHTML = "";
 
         partidos.forEach((p) => {
@@ -123,8 +190,6 @@
             p.resultado_local !== null && p.resultado_visitante !== null
               ? "Jugado"
               : "Pendiente";
-
-          // Equipos que descansan en este partido
           const descansan = todosEquipos.filter(
             (e) =>
               e !== p.equipo_local.nombre && e !== p.equipo_visitante.nombre
@@ -132,13 +197,13 @@
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-        <td>${formatearFecha(p.fecha)}</td>
-        <td>${p.lugar}</td>
-        <td>${p.equipo_local.nombre}</td>
-        <td>${p.equipo_visitante.nombre}</td>
-        <td>${estado}</td>
-        <td>${descansan.join(", ")}</td>
-      `;
+            <td>${formatearFecha(p.fecha)}</td>
+            <td>${p.lugar}</td>
+            <td>${p.equipo_local.nombre}</td>
+            <td>${p.equipo_visitante.nombre}</td>
+            <td>${estado}</td>
+            <td>${descansan.join(", ")}</td>
+          `;
           tbodyPartidos.appendChild(tr);
 
           const option = document.createElement("option");
@@ -146,8 +211,6 @@
           option.textContent = `${p.equipo_local.nombre} vs ${
             p.equipo_visitante.nombre
           } (${formatearFecha(p.fecha)})`;
-          option.dataset.local = p.equipo_local.nombre;
-          option.dataset.visitante = p.equipo_visitante.nombre;
           option.dataset.golesLocal = p.resultado_local ?? "";
           option.dataset.golesVisitante = p.resultado_visitante ?? "";
           selectPartido.appendChild(option);
@@ -159,11 +222,9 @@
       // ---------- CALCULAR CLASIFICACION ----------
       function cargarClasificacion(partidos) {
         const equipos = {};
-
         partidos.forEach((p) => {
           const local = p.equipo_local.nombre;
           const visitante = p.equipo_visitante.nombre;
-
           if (!(local in equipos))
             equipos[local] = {
               gf: 0,
@@ -209,26 +270,79 @@
         const tbody = document.querySelector("#tabla-clasificacion tbody");
         tbody.innerHTML = "";
         Object.entries(equipos)
-          .sort(
-            (a, b) =>
-              b[1].puntos - a[1].puntos ||
-              b[1].gf - b[1].gc - (a[1].gf - a[1].gc)
-          )
+          .sort((a, b) => b[1].puntos - a[1].puntos)
           .forEach(([equipo, stats]) => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-        <td>${equipo}</td>
-        <td>${stats.gf}</td>
-        <td>${stats.gc}</td>
-        <td>${stats.gf - stats.gc}</td>
-        <td>${stats.ganados}</td>
-        <td>${stats.empatados}</td>
-        <td>${stats.perdidos}</td>
-        <td>${stats.puntos}</td>
-      `;
+            <td>${equipo}</td>
+            <td>${stats.ganados}</td>
+            <td>${stats.empatados}</td>
+            <td>${stats.perdidos}</td>
+            <td>${stats.gf}</td>
+            <td>${stats.gc}</td>
+            <td>${stats.gf - stats.gc}</td>
+            <td>${stats.puntos}</td>
+          `;
             tbody.appendChild(tr);
           });
       }
+
+      // ---------- CARGAR JUGADORES POR EQUIPO ----------
+      async function cargarEquipos() {
+        try {
+          const { data: jugadores, error } = await supabase
+            .from("jugadores")
+            .select("nombre, apellido, equipo")
+            .order("equipo");
+          if (error) return console.error(error);
+
+          const lista = document.getElementById("lista-equipos");
+          lista.innerHTML = "";
+
+          const equiposMap = {};
+          jugadores.forEach((j) => {
+            const equipoNombre = `Equipo ${j.equipo ?? "?"}`;
+            if (!equiposMap[equipoNombre]) equiposMap[equipoNombre] = [];
+            equiposMap[equipoNombre].push(`${j.nombre} ${j.apellido}`);
+          });
+
+          Object.entries(equiposMap).forEach(([equipo, jugadoresArr]) => {
+            const div = document.createElement("div");
+            div.classList.add("equipo");
+            div.innerHTML = `<h2>${equipo}</h2><ul>${jugadoresArr
+              .map((j) => `<li>${j}</li>`)
+              .join("")}</ul>`;
+            lista.appendChild(div);
+          });
+
+          if (!jugadores || jugadores.length === 0)
+            lista.innerHTML = "<p>No hay jugadores registrados todavía.</p>";
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // ---------- PESTAÑAS ----------
+      const tabs = document.querySelectorAll(".tab");
+      const contents = document.querySelectorAll(".tab-content");
+
+      function activarPestaña(id) {
+        tabs.forEach((tab) =>
+          tab.classList.toggle("active", tab.dataset.tab === id)
+        );
+        contents.forEach((c) => c.classList.toggle("active", c.id === id));
+        localStorage.setItem("pestaña-activa", id);
+
+        if (id === "equipos") cargarEquipos();
+      }
+
+      tabs.forEach((tab) =>
+        tab.addEventListener("click", () => activarPestaña(tab.dataset.tab))
+      );
+
+      const pestañaGuardada = localStorage.getItem("pestaña-activa");
+      if (pestañaGuardada) activarPestaña(pestañaGuardada);
+      else activarPestaña("clasificacion");
 
       // ---------- EDITOR DE RESULTADOS ----------
       const form = document.getElementById("form-resultado");
@@ -260,6 +374,7 @@
         cargarPartidos();
       });
 
+      // Cargar inicialmente partidos
       cargarPartidos();
     </script>
   </body>
