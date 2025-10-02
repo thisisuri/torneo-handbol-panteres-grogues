@@ -239,9 +239,7 @@ const formAsistencia = document.getElementById("form-asistencia");
 async function cargarPartidosAsistencia() {
   const { data: partidos, error } = await supabase
     .from("partidos")
-    .select(
-      `id, fecha, equipo_local (id, nombre), equipo_visitante (id, nombre)`
-    )
+    .select(`id, fecha, equipo_local (nombre), equipo_visitante (nombre)`)
     .order("fecha");
   if (error) return console.error(error);
 
@@ -267,17 +265,20 @@ async function cargarJugadoresAsistencia(partidoId) {
 
   const { data: partido, error } = await supabase
     .from("partidos")
-    .select(`equipo_local(id), equipo_visitante(id)`)
+    .select(`equipo_local(nombre), equipo_visitante(nombre)`)
     .eq("id", partidoId)
     .single();
   if (error) return console.error(error);
 
-  const equipoIds = [partido.equipo_local.id, partido.equipo_visitante.id];
+  const equipoNombres = [
+    partido.equipo_local.nombre,
+    partido.equipo_visitante.nombre,
+  ];
 
   const { data: jugadores, error: errJugadores } = await supabase
     .from("jugadores")
     .select("id, nombre, apellido, equipo")
-    .in("equipo", equipoIds)
+    .in("equipo", equipoNombres)
     .order("equipo");
   if (errJugadores) return console.error(errJugadores);
 
