@@ -213,7 +213,6 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      // ---------- FUNCIONES AUXILIARES ----------
       function formatearFecha(fecha) {
         const d = new Date(fecha);
         const dia = String(d.getDate()).padStart(2, "0");
@@ -222,20 +221,22 @@
         return `${dia}-${mes}-${anio}`;
       }
 
-      // ---------- CARGAR PARTIDOS ----------
       async function cargarPartidos() {
         const { data: partidos, error } = await supabase.from("partidos")
           .select(`
-          id, fecha, lugar, resultado_local, resultado_visitante,
-          equipo_local (nombre), equipo_visitante (nombre)
-        `);
+            id, fecha, lugar, resultado_local, resultado_visitante,
+            equipo_local (nombre), equipo_visitante (nombre)
+          `);
         if (error) return console.error(error);
 
         partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
         const equiposSet = new Set();
         partidos.forEach((p) => {
-          equiposSet.add(p.equipo_local.nombre);
-          equiposSet.add(p.equipo_visitante.nombre);
+          if (p.equipo_local && p.equipo_local.nombre)
+            equiposSet.add(p.equipo_local.nombre);
+          if (p.equipo_visitante && p.equipo_visitante.nombre)
+            equiposSet.add(p.equipo_visitante.nombre);
         });
         const todosEquipos = Array.from(equiposSet);
 
@@ -249,17 +250,19 @@
             p.resultado_local !== null && p.resultado_visitante !== null
               ? "Jugado"
               : "Pendiente";
+
           const descansan = todosEquipos.filter(
             (e) =>
-              e !== p.equipo_local.nombre && e !== p.equipo_visitante.nombre
+              e !== (p.equipo_local?.nombre ?? "") &&
+              e !== (p.equipo_visitante?.nombre ?? "")
           );
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${formatearFecha(p.fecha)}</td>
-            <td>${p.lugar}</td>
-            <td>${p.equipo_local.nombre}</td>
-            <td>${p.equipo_visitante.nombre}</td>
+            <td>${p.lugar ?? ""}</td>
+            <td>${p.equipo_local?.nombre ?? ""}</td>
+            <td>${p.equipo_visitante?.nombre ?? ""}</td>
             <td>${estado}</td>
             <td>${descansan.join(", ")}</td>
           `;
@@ -267,8 +270,8 @@
 
           const option = document.createElement("option");
           option.value = p.id;
-          option.textContent = `${p.equipo_local.nombre} vs ${
-            p.equipo_visitante.nombre
+          option.textContent = `${p.equipo_local?.nombre ?? "N/A"} vs ${
+            p.equipo_visitante?.nombre ?? "N/A"
           } (${formatearFecha(p.fecha)})`;
           option.dataset.golesLocal = p.resultado_local ?? "";
           option.dataset.golesVisitante = p.resultado_visitante ?? "";
@@ -278,12 +281,13 @@
         cargarClasificacion(partidos);
       }
 
-      // ---------- CALCULAR CLASIFICACION ----------
       function cargarClasificacion(partidos) {
         const equipos = {};
         partidos.forEach((p) => {
-          const local = p.equipo_local.nombre;
-          const visitante = p.equipo_visitante.nombre;
+          const local = p.equipo_local?.nombre ?? null;
+          const visitante = p.equipo_visitante?.nombre ?? null;
+          if (!local || !visitante) return;
+
           if (!(local in equipos))
             equipos[local] = {
               gf: 0,
@@ -333,20 +337,19 @@
           .forEach(([equipo, stats]) => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-            <td>${equipo}</td>
-            <td>${stats.ganados}</td>
-            <td>${stats.empatados}</td>
-            <td>${stats.perdidos}</td>
-            <td>${stats.gf}</td>
-            <td>${stats.gc}</td>
-            <td>${stats.gf - stats.gc}</td>
-            <td>${stats.puntos}</td>
-          `;
+              <td>${equipo}</td>
+              <td>${stats.ganados}</td>
+              <td>${stats.empatados}</td>
+              <td>${stats.perdidos}</td>
+              <td>${stats.gf}</td>
+              <td>${stats.gc}</td>
+              <td>${stats.gf - stats.gc}</td>
+              <td>${stats.puntos}</td>
+            `;
             tbody.appendChild(tr);
           });
       }
 
-      // ---------- CARGAR JUGADORES POR EQUIPO ----------
       async function cargarEquipos() {
         try {
           const { data: jugadores, error } = await supabase
@@ -381,7 +384,6 @@
         }
       }
 
-      // ---------- PESTAÑAS ----------
       const tabs = document.querySelectorAll(".tab");
       const contents = document.querySelectorAll(".tab-content");
 
@@ -403,7 +405,6 @@
       if (pestañaGuardada) activarPestaña(pestañaGuardada);
       else activarPestaña("clasificacion");
 
-      // ---------- EDITOR DE RESULTADOS ----------
       const form = document.getElementById("form-resultado");
       const selectPartido = document.getElementById("select-partido");
       const golesLocalInput = document.getElementById("goles-local");
@@ -433,7 +434,6 @@
         cargarPartidos();
       });
 
-      // Cargar inicialmente partidos
       cargarPartidos();
     </script>
   </body>
