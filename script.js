@@ -1,4 +1,3 @@
-// script.js
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 // Configuración Supabase
@@ -16,7 +15,7 @@ function formatearFecha(fecha) {
   return `${dia}-${mes}-${anio}`;
 }
 
-// Cargar partidos y llenar tabla y select
+// -------------------- Cargar partidos y tabla --------------------
 async function cargarPartidos() {
   const { data: partidos, error } = await supabase.from("partidos").select(`
       id, fecha, lugar, resultado_local, resultado_visitante,
@@ -74,7 +73,7 @@ async function cargarPartidos() {
   cargarClasificacion(partidos);
 }
 
-// Cargar clasificación en la tabla
+// -------------------- Clasificación --------------------
 function cargarClasificacion(partidos) {
   const equipos = {};
   partidos.forEach((p) => {
@@ -144,12 +143,12 @@ function cargarClasificacion(partidos) {
     });
 }
 
-// Cargar lista de equipos y jugadores
+// -------------------- Equipos --------------------
 async function cargarEquipos() {
   try {
     const { data: jugadores, error } = await supabase
       .from("jugadores")
-      .select("nombre, apellido, equipo")
+      .select("id, nombre, apellido, equipo")
       .order("equipo");
     if (error) return console.error(error);
 
@@ -179,7 +178,7 @@ async function cargarEquipos() {
   }
 }
 
-// Manejo de pestañas
+// -------------------- Pestañas --------------------
 const tabs = document.querySelectorAll(".tab");
 const contents = document.querySelectorAll(".tab-content");
 
@@ -189,6 +188,7 @@ function activarPestaña(id) {
   localStorage.setItem("pestaña-activa", id);
 
   if (id === "equipos") cargarEquipos();
+  if (id === "asistencia") cargarPartidosAsistencia();
 }
 
 tabs.forEach((tab) =>
@@ -199,7 +199,7 @@ const pestañaGuardada = localStorage.getItem("pestaña-activa");
 if (pestañaGuardada) activarPestaña(pestañaGuardada);
 else activarPestaña("clasificacion");
 
-// Manejo del formulario de resultados
+// -------------------- Formulario de resultados --------------------
 const form = document.getElementById("form-resultado");
 const selectPartido = document.getElementById("select-partido");
 const golesLocalInput = document.getElementById("goles-local");
@@ -229,5 +229,97 @@ form.addEventListener("submit", async (e) => {
   cargarPartidos();
 });
 
-// Carga inicial de datos
+// -------------------- Pestaña de asistencia --------------------
+const selectPartidoAsistencia = document.getElementById(
+  "select-partido-asistencia"
+);
+const listaJugadoresDiv = document.getElementById("lista-jugadores");
+const formAsistencia = document.getElementById("form-asistencia");
+
+async function cargarPartidosAsistencia() {
+  const { data: partidos, error } = await supabase
+    .from("partidos")
+    .select(
+      `id, fecha, equipo_local (id, nombre), equipo_visitante (id, nombre)`
+    )
+    .order("fecha");
+  if (error) return console.error(error);
+
+  selectPartidoAsistencia.innerHTML = "";
+  partidos.forEach((p) => {
+    const option = document.createElement("option");
+    option.value = p.id;
+    option.textContent = `${p.equipo_local.nombre} vs ${
+      p.equipo_visitante.nombre
+    } (${formatearFecha(p.fecha)})`;
+    selectPartidoAsistencia.appendChild(option);
+  });
+
+  if (partidos.length > 0) cargarJugadoresAsistencia(partidos[0].id);
+}
+
+selectPartidoAsistencia.addEventListener("change", () => {
+  cargarJugadoresAsistencia(selectPartidoAsistencia.value);
+});
+
+async function cargarJugadoresAsistencia(partidoId) {
+  listaJugadoresDiv.innerHTML = "Cargando...";
+
+  const { data: partido, error } = await supabase
+    .from("partidos")
+    .select(`equipo_local(id), equipo_visitante(id)`)
+    .eq("id", partidoId)
+    .single();
+  if (error) return console.error(error);
+
+  const equipoIds = [partido.equipo_local.id, partido.equipo_visitante.id];
+
+  const { data: jugadores, error: errJugadores } = await supabase
+    .from("jugadores")
+    .select("id, nombre, apellido, equipo")
+    .in("equipo", equipoIds)
+    .order("equipo");
+  if (errJugadores) return console.error(errJugadores);
+
+  const { data: asistencias } = await supabase
+    .from("asistencia")
+    .select("jugador_id, presente")
+    .eq("partido_id", partidoId);
+
+  const asistMap = {};
+  if (asistencias)
+    asistencias.forEach((a) => (asistMap[a.jugador_id] = a.presente));
+
+  listaJugadoresDiv.innerHTML = "";
+  jugadores.forEach((j) => {
+    const div = document.createElement("div");
+    div.innerHTML = `<label>
+      <input type="checkbox" value="${j.id}" ${asistMap[j.id] ? "checked" : ""}>
+      ${j.nombre} ${j.apellido}
+    </label>`;
+    listaJugadoresDiv.appendChild(div);
+  });
+}
+
+formAsistencia.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const partidoId = selectPartidoAsistencia.value;
+  const checkboxes = listaJugadoresDiv.querySelectorAll("input[type=checkbox]");
+
+  for (const cb of checkboxes) {
+    const jugadorId = parseInt(cb.value);
+    const presente = cb.checked;
+
+    const { error } = await supabase
+      .from("asistencia")
+      .upsert({ partido_id: partidoId, jugador_id: jugadorId, presente })
+      .eq("partido_id", partidoId)
+      .eq("jugador_id", jugadorId);
+    if (error) console.error(error);
+  }
+
+  alert("Asistencia guardada correctamente.");
+});
+
+// -------------------- Carga inicial --------------------
 cargarPartidos();

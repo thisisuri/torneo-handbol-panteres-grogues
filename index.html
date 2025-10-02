@@ -28,6 +28,7 @@
       <div class="tab" data-tab="reglamento">Reglamento</div>
       <div class="tab" data-tab="equipos">Equipos</div>
       <div class="tab" data-tab="acta">Acta del partido</div>
+      <div class="tab" data-tab="asistencia">Asistencia</div>
     </div>
 
     <!-- CONTENIDO DE PESTAÑAS -->
@@ -206,6 +207,17 @@
         </label>
         <br />
         <button type="submit">Confirmar resultado</button>
+      </form>
+    </div>
+    <div id="asistencia" class="tab-content">
+      <h1>Control de asistencia</h1>
+      <form id="form-asistencia">
+        <label>
+          Partido:
+          <select id="select-partido-asistencia"></select>
+        </label>
+        <div id="lista-jugadores" style="margin-top: 20px"></div>
+        <button type="submit">Confirmar asistencia</button>
       </form>
     </div>
 
