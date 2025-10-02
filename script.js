@@ -37,6 +37,13 @@ async function cargarPartidos() {
   const selectPartido = document.getElementById("select-partido");
   selectPartido.innerHTML = "";
 
+  // Placeholder para acta del partido
+  const placeholderOption = document.createElement("option");
+  placeholderOption.textContent = "Selecciona el partido";
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
+  selectPartido.appendChild(placeholderOption);
+
   partidos.forEach((p) => {
     const estado =
       p.resultado_local !== null && p.resultado_visitante !== null
@@ -244,6 +251,14 @@ async function cargarPartidosAsistencia() {
   if (error) return console.error(error);
 
   selectPartidoAsistencia.innerHTML = "";
+
+  // Placeholder
+  const placeholderOption = document.createElement("option");
+  placeholderOption.textContent = "Selecciona el partido";
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
+  selectPartidoAsistencia.appendChild(placeholderOption);
+
   partidos.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.id;
@@ -253,7 +268,7 @@ async function cargarPartidosAsistencia() {
     selectPartidoAsistencia.appendChild(option);
   });
 
-  if (partidos.length > 0) cargarJugadoresAsistencia(partidos[0].id);
+  // No cargamos jugadores automáticamente hasta que se seleccione un partido
 }
 
 selectPartidoAsistencia.addEventListener("change", () => {
