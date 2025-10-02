@@ -260,16 +260,18 @@ tbody tr:hover {
 
 /* -------------------- Media Queries para móvil -------------------- */
 @media (max-width: 768px) {
+
+  /* Ajustes generales */
+  body {
+    padding: 15px;
+  }
+
   h1 {
     font-size: 28px;
   }
 
   h2 {
     font-size: 22px;
-  }
-
-  body {
-    padding: 15px;
   }
 
   form {
@@ -288,31 +290,54 @@ tbody tr:hover {
     font-size: 28px;
   }
 
+  /* -------------------- Tablas -------------------- */
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
   table {
-    font-size: 16px;
+    font-size: 18px; /* Aumentamos para móvil */
   }
 
   th, td {
-    padding: 12px 8px;
+    padding: 14px 10px;
   }
 
+  /* -------------------- Pestañas -------------------- */
+  .tabs {
+    flex-direction: column; /* columnas en móvil */
+    gap: 8px;
+  }
+
+  .tab {
+    font-size: 18px; /* texto más grande */
+    padding: 12px 15px;
+  }
+
+  .tab-content {
+    font-size: 18px !important;
+  }
+
+  /* -------------------- Equipos -------------------- */
   .equipo h2 {
     font-size: 20px !important;
   }
 
   .equipo li {
-    font-size: 16px !important;
+    font-size: 18px !important;
   }
 
+  /* -------------------- Reglamento -------------------- */
   #reglamento h2 {
     font-size: 20px !important;
   }
 
   #reglamento ul li {
-    font-size: 16px !important;
+    font-size: 16px !important; /* mantener lectura cómoda */
   }
 
+  /* -------------------- Select partido -------------------- */
   #select-partido {
-    font-size: 16px !important;
+    font-size: 18px !important;
   }
 }
