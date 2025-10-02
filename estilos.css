@@ -294,6 +294,33 @@ tbody tr:hover {
   }
 }
 
+/* Asistencia */
+#lista-jugadores-partido {
+  margin-top: 20px;
+}
+
+/* Tabla global de asistencia */
+#tabla-asistencia {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#tabla-asistencia th,
+#tabla-asistencia td {
+  border: 1px solid #000;
+  padding: 8px;
+  text-align: center;
+}
+
+#tabla-asistencia th {
+  background-color: #f2f2f2;
+}
+
+#tabla-asistencia tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
 
 /* -------------------- Media Queries para móvil -------------------- */
 @media (max-width: 768px) {

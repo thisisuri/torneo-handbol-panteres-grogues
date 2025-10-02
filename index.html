@@ -209,16 +209,32 @@
         <button type="submit">Confirmar resultado</button>
       </form>
     </div>
+
     <div id="asistencia" class="tab-content">
       <h1>Control de asistencia</h1>
+
+      <!-- Selección de partido para marcar asistencia -->
       <form id="form-asistencia">
         <label>
           Partido:
           <select id="select-partido-asistencia"></select>
         </label>
-        <div id="lista-jugadores" style="margin-top: 20px"></div>
+        <div id="lista-jugadores-partido"></div>
         <button type="submit">Confirmar asistencia</button>
       </form>
+
+      <!-- Tabla global de asistencia -->
+      <h2>Asistencia general por jugador</h2>
+      <table id="tabla-asistencia">
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Partidos jugados</th>
+            <th>% de asistencia</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
     <script type="module" src="./script.js"></script>

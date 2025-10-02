@@ -3,10 +3,10 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Configuración Supabase
 const SUPABASE_URL = "https://ouekofkdhejydaopitjt.supabase.co";
 const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjQ2MTAsImV4cCI6MjA3NDkwMDYxMH0.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
+  "eyJhbGciOiJIUzI1NiIsInJlZiI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZWtvZmtkaGVqeWRhb3BpdGp0Iiwicm9sZSI6ImF4b25vbiIsImlhdCI6MTc1OTMyNDYxMCwiZXhwIjoyMDc0OTAwNjEwfQ.xnFACfUHRzIpcNxnK8H0BAOfBSUlMXPek8QPLTxXZ8E";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Función para formatear fecha
+// -------------------- Utilidades --------------------
 function formatearFecha(fecha) {
   const d = new Date(fecha);
   const dia = String(d.getDate()).padStart(2, "0");
@@ -15,7 +15,7 @@ function formatearFecha(fecha) {
   return `${dia}-${mes}-${anio}`;
 }
 
-// -------------------- Cargar partidos y tabla --------------------
+// -------------------- Partidos --------------------
 async function cargarPartidos() {
   const { data: partidos, error } = await supabase.from("partidos").select(`
       id, fecha, lugar, resultado_local, resultado_visitante,
@@ -37,7 +37,6 @@ async function cargarPartidos() {
   const selectPartido = document.getElementById("select-partido");
   selectPartido.innerHTML = "";
 
-  // Placeholder para acta del partido
   const placeholderOption = document.createElement("option");
   placeholderOption.textContent = "Selecciona el partido";
   placeholderOption.disabled = true;
@@ -195,7 +194,10 @@ function activarPestaña(id) {
   localStorage.setItem("pestaña-activa", id);
 
   if (id === "equipos") cargarEquipos();
-  if (id === "asistencia") cargarPartidosAsistencia();
+  if (id === "asistencia") {
+    cargarPartidosAsistencia();
+    cargarTablaAsistencia();
+  }
 }
 
 tabs.forEach((tab) =>
@@ -206,7 +208,7 @@ const pestañaGuardada = localStorage.getItem("pestaña-activa");
 if (pestañaGuardada) activarPestaña(pestañaGuardada);
 else activarPestaña("clasificacion");
 
-// -------------------- Formulario de resultados --------------------
+// -------------------- Acta de resultados --------------------
 const form = document.getElementById("form-resultado");
 const selectPartido = document.getElementById("select-partido");
 const golesLocalInput = document.getElementById("goles-local");
@@ -236,23 +238,24 @@ form.addEventListener("submit", async (e) => {
   cargarPartidos();
 });
 
-// -------------------- Pestaña de asistencia --------------------
+// -------------------- Asistencia --------------------
 const selectPartidoAsistencia = document.getElementById(
   "select-partido-asistencia"
 );
-const listaJugadoresDiv = document.getElementById("lista-jugadores");
+const listaJugadoresPartidoDiv = document.getElementById(
+  "lista-jugadores-partido"
+);
 const formAsistencia = document.getElementById("form-asistencia");
+const tablaAsistenciaBody = document.querySelector("#tabla-asistencia tbody");
 
 async function cargarPartidosAsistencia() {
   const { data: partidos, error } = await supabase
     .from("partidos")
-    .select(`id, fecha, equipo_local (nombre), equipo_visitante (nombre)`)
+    .select(`id, fecha, equipo_local(nombre), equipo_visitante(nombre)`)
     .order("fecha");
   if (error) return console.error(error);
 
   selectPartidoAsistencia.innerHTML = "";
-
-  // Placeholder
   const placeholderOption = document.createElement("option");
   placeholderOption.textContent = "Selecciona el partido";
   placeholderOption.disabled = true;
@@ -267,8 +270,6 @@ async function cargarPartidosAsistencia() {
     } (${formatearFecha(p.fecha)})`;
     selectPartidoAsistencia.appendChild(option);
   });
-
-  // No cargamos jugadores automáticamente hasta que se seleccione un partido
 }
 
 selectPartidoAsistencia.addEventListener("change", () => {
@@ -276,7 +277,7 @@ selectPartidoAsistencia.addEventListener("change", () => {
 });
 
 async function cargarJugadoresAsistencia(partidoId) {
-  listaJugadoresDiv.innerHTML = "Cargando...";
+  listaJugadoresPartidoDiv.innerHTML = "Cargando...";
 
   const { data: partido, error } = await supabase
     .from("partidos")
@@ -306,21 +307,23 @@ async function cargarJugadoresAsistencia(partidoId) {
   if (asistencias)
     asistencias.forEach((a) => (asistMap[a.jugador_id] = a.presente));
 
-  listaJugadoresDiv.innerHTML = "";
+  listaJugadoresPartidoDiv.innerHTML = "";
   jugadores.forEach((j) => {
     const div = document.createElement("div");
     div.innerHTML = `<label>
       <input type="checkbox" value="${j.id}" ${asistMap[j.id] ? "checked" : ""}>
       ${j.nombre} ${j.apellido}
     </label>`;
-    listaJugadoresDiv.appendChild(div);
+    listaJugadoresPartidoDiv.appendChild(div);
   });
 }
 
 formAsistencia.addEventListener("submit", async (e) => {
   e.preventDefault();
   const partidoId = selectPartidoAsistencia.value;
-  const checkboxes = listaJugadoresDiv.querySelectorAll("input[type=checkbox]");
+  const checkboxes = listaJugadoresPartidoDiv.querySelectorAll(
+    "input[type=checkbox]"
+  );
 
   for (const cb of checkboxes) {
     const jugadorId = parseInt(cb.value);
@@ -335,7 +338,44 @@ formAsistencia.addEventListener("submit", async (e) => {
   }
 
   alert("Asistencia guardada correctamente.");
+  cargarTablaAsistencia();
 });
+
+async function cargarTablaAsistencia() {
+  const { data: jugadores, error: errJugadores } = await supabase
+    .from("jugadores")
+    .select("id, nombre, apellido")
+    .order("apellido", { ascending: true })
+    .order("nombre", { ascending: true });
+  if (errJugadores) return console.error(errJugadores);
+
+  const { data: asistencias, error: errAsist } = await supabase
+    .from("asistencia")
+    .select("jugador_id, presente");
+  if (errAsist) return console.error(errAsist);
+
+  const asistenciaPorJugador = {};
+  jugadores.forEach((j) => (asistenciaPorJugador[j.id] = 0));
+  asistencias.forEach((a) => {
+    if (a.presente && asistenciaPorJugador[a.jugador_id] !== undefined) {
+      asistenciaPorJugador[a.jugador_id]++;
+    }
+  });
+
+  const TOTAL_PARTIDOS = 3;
+
+  tablaAsistenciaBody.innerHTML = jugadores
+    .map((j) => {
+      const partidos = asistenciaPorJugador[j.id];
+      const porcentaje = ((partidos / TOTAL_PARTIDOS) * 100).toFixed(0);
+      return `<tr>
+        <td>${j.nombre} ${j.apellido}</td>
+        <td>${partidos}</td>
+        <td>${porcentaje}%</td>
+      </tr>`;
+    })
+    .join("");
+}
 
 // -------------------- Carga inicial --------------------
 cargarPartidos();
