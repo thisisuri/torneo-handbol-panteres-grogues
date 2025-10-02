@@ -77,6 +77,7 @@ async function cargarPartidos() {
   });
 
   cargarClasificacion(partidos);
+  cargarResultados(partidos); // <<< NUEVO
 }
 
 // -------------------- Clasificación --------------------
@@ -149,6 +150,30 @@ function cargarClasificacion(partidos) {
     });
 }
 
+// -------------------- Resultados --------------------
+function cargarResultados(partidos) {
+  const tbody = document.querySelector("#tabla-resultados tbody");
+  if (!tbody) return; // seguridad si la tabla no existe
+  tbody.innerHTML = "";
+
+  partidos.forEach((p) => {
+    const tr = document.createElement("tr");
+
+    let resultado =
+      p.resultado_local !== null && p.resultado_visitante !== null
+        ? `${p.resultado_local} - ${p.resultado_visitante}`
+        : "Pendiente de jugar";
+
+    tr.innerHTML = `
+      <td>${formatearFecha(p.fecha)}</td>
+      <td>${p.equipo_local?.nombre ?? ""}</td>
+      <td>${p.equipo_visitante?.nombre ?? ""}</td>
+      <td>${resultado}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 // -------------------- Equipos --------------------
 async function cargarEquipos() {
   try {
@@ -169,7 +194,6 @@ async function cargarEquipos() {
     });
 
     Object.entries(equiposMap).forEach(([equipo, jugadoresArr]) => {
-      // capitanes primero, luego resto ordenados por apellido
       jugadoresArr.sort((a, b) => {
         if (a.capitan !== b.capitan) return b.capitan - a.capitan;
         return a.apellido.localeCompare(b.apellido);
@@ -377,7 +401,7 @@ async function cargarTablaAsistencia() {
     }
   });
 
-  const TOTAL_PARTIDOS = 3;
+  const TOTAL_PARTIDOS = 4;
 
   tablaAsistenciaBody.innerHTML = jugadores
     .map((j) => {
