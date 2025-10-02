@@ -16,6 +16,8 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center; /* centrado general */
+  text-align: center;
 }
 
 /* -------------------- Contenedor -------------------- */
@@ -23,8 +25,8 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
   padding: 0 10px;
+  text-align: center;
 }
 
 /* -------------------- Títulos -------------------- */
@@ -47,8 +49,7 @@ h2 {
 }
 
 /* -------------------- Párrafos y listas -------------------- */
-p {
-  margin-bottom: 15px;
+p, ul, li {
   font-size: 16px;
   line-height: 1.5;
   color: #333;
@@ -57,13 +58,11 @@ p {
 ul {
   margin-bottom: 20px;
   padding-left: 20px;
-  font-size: 16px;
-  line-height: 1.5;
+  list-style: disc;
 }
 
 ul li {
   margin-bottom: 8px;
-  line-height: 1.5;
 }
 
 /* -------------------- Formulario -------------------- */
@@ -73,37 +72,39 @@ form {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   margin-bottom: 30px;
+  width: 100%;
+  max-width: 500px;
 }
 
 form label {
   display: block;
   margin-bottom: 12px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 form input,
 form select {
   width: 100%;
-  padding: 12px 15px;
+  padding: 14px 15px;
   margin-top: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 button {
   background-color: #006ba1;
   color: white;
   border: none;
-  padding: 12px;
+  padding: 14px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
   display: block;
   margin: 10px auto 0 auto;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 button:hover {
@@ -115,6 +116,7 @@ button:hover {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  margin-bottom: 20px;
 }
 
 table {
@@ -133,7 +135,7 @@ thead {
 }
 
 th, td {
-  padding: 12px 10px;
+  padding: 14px 12px;
   text-align: center;
   border-bottom: 1px solid #ddd;
 }
@@ -151,7 +153,7 @@ tbody tr:hover {
 .cover-container {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 300px;
   overflow: hidden;
   margin-bottom: 30px;
 }
@@ -170,7 +172,7 @@ tbody tr:hover {
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 48px;
+  font-size: 36px;
   font-weight: bold;
   text-align: center;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
@@ -179,6 +181,7 @@ tbody tr:hover {
 /* -------------------- Pestañas -------------------- */
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   margin: 20px 0;
   gap: 10px;
@@ -200,7 +203,7 @@ tbody tr:hover {
 .tab-content {
   display: none;
   margin-top: 20px;
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
 
 .tab-content.active {
@@ -215,7 +218,7 @@ tbody tr:hover {
 .equipo h2 {
   margin-bottom: 10px;
   color: #006ba1;
-  font-size: 20px !important;
+  font-size: 22px !important;
 }
 
 .equipo ul {
@@ -228,19 +231,19 @@ tbody tr:hover {
 
 .equipo li {
   margin: 3px 0;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid #ddd;
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
 
 /* -------------------- Reglamento -------------------- */
 #reglamento h2 {
-  font-size: 20px !important;
+  font-size: 22px !important;
   color: #006ba1;
 }
 
 #reglamento ul li {
-  font-size: 16px !important;
+  font-size: 18px !important;
   margin-bottom: 8px;
   line-height: 1.5;
   padding-left: 5px;
@@ -248,45 +251,64 @@ tbody tr:hover {
 
 /* -------------------- Select partido -------------------- */
 #select-partido {
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
 
-/* -------------------- Responsive -------------------- */
-@media (max-width: 480px) {
-  h1 { font-size: 28px !important; }
-  h2 { font-size: 20px !important; }
-  p, li { font-size: 16px !important; }
-
-  table, thead, tbody, th, td, tr {
-    display: block;
-    width: 100%;
+/* -------------------- Media Queries para móvil -------------------- */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 28px;
   }
 
-  thead {
-    display: none;
+  h2 {
+    font-size: 22px;
   }
 
-  tbody tr {
-    margin-bottom: 15px;
-    background-color: #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    border-radius: 10px;
-    padding: 12px;
+  body {
+    padding: 15px;
   }
 
-  td {
-    text-align: right;
-    padding-left: 50%;
-    position: relative;
+  form {
+    padding: 15px;
   }
 
-  td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 15px;
-    width: 45%;
-    padding-right: 10px;
-    font-weight: 600;
-    text-align: left;
+  form label, form input, form select, button {
+    font-size: 18px;
+  }
+
+  .cover-container {
+    height: 250px;
+  }
+
+  .cover-title {
+    font-size: 28px;
+  }
+
+  table {
+    font-size: 16px;
+  }
+
+  th, td {
+    padding: 12px 8px;
+  }
+
+  .equipo h2 {
+    font-size: 20px !important;
+  }
+
+  .equipo li {
+    font-size: 16px !important;
+  }
+
+  #reglamento h2 {
+    font-size: 20px !important;
+  }
+
+  #reglamento ul li {
+    font-size: 16px !important;
+  }
+
+  #select-partido {
+    font-size: 16px !important;
   }
 }
