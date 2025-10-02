@@ -154,8 +154,8 @@ async function cargarEquipos() {
   try {
     const { data: jugadores, error } = await supabase
       .from("jugadores")
-      .select("id, nombre, apellido, equipo")
-      .order("equipo");
+      .select("id, nombre, apellido, equipo, capitan")
+      .order("equipo", { ascending: true });
     if (error) return console.error(error);
 
     const lista = document.getElementById("lista-equipos");
@@ -165,15 +165,29 @@ async function cargarEquipos() {
     jugadores.forEach((j) => {
       const equipoNombre = `Equipo ${j.equipo ?? "?"}`;
       if (!equiposMap[equipoNombre]) equiposMap[equipoNombre] = [];
-      equiposMap[equipoNombre].push(`${j.nombre} ${j.apellido}`);
+      equiposMap[equipoNombre].push(j);
     });
 
     Object.entries(equiposMap).forEach(([equipo, jugadoresArr]) => {
+      // capitanes primero, luego resto ordenados por apellido
+      jugadoresArr.sort((a, b) => {
+        if (a.capitan !== b.capitan) return b.capitan - a.capitan;
+        return a.apellido.localeCompare(b.apellido);
+      });
+
       const div = document.createElement("div");
       div.classList.add("equipo");
-      div.innerHTML = `<h2>${equipo}</h2><ul>${jugadoresArr
-        .map((j) => `<li>${j}</li>`)
-        .join("")}</ul>`;
+
+      div.innerHTML = `<h2>${equipo}</h2>
+        <ul>
+          ${jugadoresArr
+            .map(
+              (j) =>
+                `<li>${j.nombre} ${j.apellido}${j.capitan ? " (C)" : ""}</li>`
+            )
+            .join("")}
+        </ul>`;
+
       lista.appendChild(div);
     });
 
@@ -295,7 +309,8 @@ async function cargarJugadoresAsistencia(partidoId) {
     .from("jugadores")
     .select("id, nombre, apellido, equipo")
     .in("equipo", equipoNombres)
-    .order("equipo");
+    .order("apellido", { ascending: true })
+    .order("nombre", { ascending: true });
   if (errJugadores) return console.error(errJugadores);
 
   const { data: asistencias } = await supabase
@@ -312,7 +327,7 @@ async function cargarJugadoresAsistencia(partidoId) {
     const div = document.createElement("div");
     div.innerHTML = `<label>
       <input type="checkbox" value="${j.id}" ${asistMap[j.id] ? "checked" : ""}>
-      ${j.nombre} ${j.apellido}
+      ${j.apellido}, ${j.nombre}
     </label>`;
     listaJugadoresPartidoDiv.appendChild(div);
   });
@@ -369,7 +384,7 @@ async function cargarTablaAsistencia() {
       const partidos = asistenciaPorJugador[j.id];
       const porcentaje = ((partidos / TOTAL_PARTIDOS) * 100).toFixed(0);
       return `<tr>
-        <td>${j.nombre} ${j.apellido}</td>
+        <td>${j.apellido}, ${j.nombre}</td>
         <td>${partidos}</td>
         <td>${porcentaje}%</td>
       </tr>`;
