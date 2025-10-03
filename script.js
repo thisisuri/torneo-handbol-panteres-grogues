@@ -383,7 +383,14 @@ async function cargarPartidosAsistencia() {
 
   partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
+  // Placeholder "Selecciona el partido"
   selectPartidoAsistencia.innerHTML = "";
+  const placeholderOption = document.createElement("option");
+  placeholderOption.textContent = "Selecciona el partido";
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
+  selectPartidoAsistencia.appendChild(placeholderOption);
+
   partidos.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.id;
@@ -402,9 +409,13 @@ selectPartidoAsistencia.addEventListener("change", async () => {
   if (error) return console.error(error);
 
   listaJugadoresPartidoDiv.innerHTML = "";
+
+  // Ordenar jugadores por apellido
+  jugadores.sort((a, b) => a.apellido.localeCompare(b.apellido));
+
   jugadores.forEach((j) => {
     const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" name="asistencia" value="${j.id}">${j.nombre} ${j.apellido}`;
+    label.innerHTML = `<input type="checkbox" name="asistencia" value="${j.id}">${j.apellido}, ${j.nombre}`;
     listaJugadoresPartidoDiv.appendChild(label);
     listaJugadoresPartidoDiv.appendChild(document.createElement("br"));
   });
@@ -421,15 +432,13 @@ formAsistencia.addEventListener("submit", async (e) => {
   const asistencias = Array.from(checkboxes).map((c) => c.value);
 
   // Inserción/upsert en la tabla correcta con 'presente: true'
-  const { error } = await supabase
-    .from("asistencia")
-    .upsert(
-      asistencias.map((jugador_id) => ({
-        partido_id: partidoId,
-        jugador_id,
-        presente: true,
-      }))
-    );
+  const { error } = await supabase.from("asistencia").upsert(
+    asistencias.map((jugador_id) => ({
+      partido_id: partidoId,
+      jugador_id,
+      presente: true,
+    }))
+  );
 
   if (error) return console.error(error);
   alert("Asistencias registradas correctamente.");
