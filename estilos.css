@@ -404,7 +404,7 @@ tbody tr:hover {
 
   /* --- Tablas responsivas en móvil --- */
   .table-wrapper table {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   th, td {
@@ -419,13 +419,13 @@ tbody tr:hover {
   }
 
   .tab {
-    font-size: 18px;
+    font-size: 16px;
     padding: 12px 15px;
     text-align: center;
   }
 
   .tab-content {
-    font-size: 18px !important;
+    font-size: 12px !important;
   }
 
   /* --- Equipos --- */
@@ -434,7 +434,7 @@ tbody tr:hover {
   }
 
   .equipo li {
-    font-size: 18px !important;
+    font-size: 16px !important;
   }
 
   #lista-equipos {
@@ -452,7 +452,7 @@ tbody tr:hover {
 
   /* --- Select partido --- */
   #select-partido {
-    font-size: 18px !important;
+    font-size: 16px !important;
   }
 }
 
