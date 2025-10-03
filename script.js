@@ -18,7 +18,7 @@ function formatearFecha(fecha) {
 // -------------------- Partidos --------------------
 async function cargarPartidos() {
   const { data: partidos, error } = await supabase.from("partidos").select(`
-      id, fecha, lugar, resultado_local, resultado_visitante,
+      id, fecha, lugar, resultado_local, resultado_visitante, observaciones,
       equipo_local (nombre), equipo_visitante (nombre)
     `);
   if (error) return console.error(error);
@@ -32,6 +32,7 @@ async function cargarPartidos() {
   });
   const todosEquipos = Array.from(equiposSet);
 
+  // Tabla de partidos
   const tbodyPartidos = document.querySelector("#tabla-partidos tbody");
   tbodyPartidos.innerHTML = "";
   const selectPartido = document.getElementById("select-partido");
@@ -77,7 +78,7 @@ async function cargarPartidos() {
   });
 
   cargarClasificacion(partidos);
-  cargarResultados(partidos); // <<< NUEVO
+  cargarResultados(partidos);
 }
 
 // -------------------- Clasificación --------------------
@@ -153,12 +154,11 @@ function cargarClasificacion(partidos) {
 // -------------------- Resultados --------------------
 function cargarResultados(partidos) {
   const tbody = document.querySelector("#tabla-resultados tbody");
-  if (!tbody) return; // seguridad si la tabla no existe
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   partidos.forEach((p) => {
     const tr = document.createElement("tr");
-
     let resultado =
       p.resultado_local !== null && p.resultado_visitante !== null
         ? `${p.resultado_local} - ${p.resultado_visitante}`
@@ -176,53 +176,159 @@ function cargarResultados(partidos) {
 
 // -------------------- Equipos --------------------
 async function cargarEquipos() {
-  try {
-    const { data: jugadores, error } = await supabase
-      .from("jugadores")
-      .select("id, nombre, apellido, equipo, capitan")
-      .order("equipo", { ascending: true });
-    if (error) return console.error(error);
+  const { data: jugadores, error } = await supabase
+    .from("jugadores")
+    .select("id, nombre, apellido, equipo, capitan")
+    .order("equipo", { ascending: true });
+  if (error) return console.error(error);
 
-    const lista = document.getElementById("lista-equipos");
-    lista.innerHTML = "";
+  const lista = document.getElementById("lista-equipos");
+  lista.innerHTML = "";
 
-    const equiposMap = {};
-    jugadores.forEach((j) => {
-      const equipoNombre = `Equipo ${j.equipo ?? "?"}`;
-      if (!equiposMap[equipoNombre]) equiposMap[equipoNombre] = [];
-      equiposMap[equipoNombre].push(j);
+  const equiposMap = {};
+  jugadores.forEach((j) => {
+    const equipoNombre = `Equipo ${j.equipo ?? "?"}`;
+    if (!equiposMap[equipoNombre]) equiposMap[equipoNombre] = [];
+    equiposMap[equipoNombre].push(j);
+  });
+
+  Object.entries(equiposMap).forEach(([equipo, jugadoresArr]) => {
+    jugadoresArr.sort((a, b) => {
+      if (a.capitan !== b.capitan) return b.capitan - a.capitan;
+      return a.apellido.localeCompare(b.apellido);
     });
 
-    Object.entries(equiposMap).forEach(([equipo, jugadoresArr]) => {
-      jugadoresArr.sort((a, b) => {
-        if (a.capitan !== b.capitan) return b.capitan - a.capitan;
-        return a.apellido.localeCompare(b.apellido);
-      });
+    const div = document.createElement("div");
+    div.classList.add("equipo");
+    div.innerHTML = `<h2>${equipo}</h2>
+      <ul>
+        ${jugadoresArr
+          .map(
+            (j) =>
+              `<li>${j.nombre} ${j.apellido}${j.capitan ? " (C)" : ""}</li>`
+          )
+          .join("")}
+      </ul>`;
+    lista.appendChild(div);
+  });
 
-      const div = document.createElement("div");
-      div.classList.add("equipo");
-
-      div.innerHTML = `<h2>${equipo}</h2>
-        <ul>
-          ${jugadoresArr
-            .map(
-              (j) =>
-                `<li>${j.nombre} ${j.apellido}${j.capitan ? " (C)" : ""}</li>`
-            )
-            .join("")}
-        </ul>`;
-
-      lista.appendChild(div);
-    });
-
-    if (!jugadores || jugadores.length === 0)
-      lista.innerHTML = "<p>No hay jugadores registrados todavía.</p>";
-  } catch (err) {
-    console.error(err);
-  }
+  if (!jugadores || jugadores.length === 0)
+    lista.innerHTML = "<p>No hay jugadores registrados todavía.</p>";
 }
 
-// -------------------- Pestañas --------------------
+// -------------------- Acta de resultados --------------------
+const form = document.getElementById("form-resultado");
+const selectPartido = document.getElementById("select-partido");
+const golesLocalInput = document.getElementById("goles-local");
+const golesVisitanteInput = document.getElementById("goles-visitante");
+const jugadoresExtraDiv = document.getElementById("jugadores-extra");
+const penalizacionesDiv = document.getElementById("penalizaciones-cupo");
+const observacionesInput = document.getElementById("observaciones");
+
+// Cargar datos del partido al seleccionarlo
+selectPartido.addEventListener("change", async () => {
+  const partidoId = selectPartido.value;
+  const option = selectPartido.selectedOptions[0];
+  golesLocalInput.value = option.dataset.golesLocal;
+  golesVisitanteInput.value = option.dataset.golesVisitante;
+
+  // Observaciones
+  const { data: partido } = await supabase
+    .from("partidos")
+    .select("observaciones")
+    .eq("id", partidoId)
+    .single();
+  observacionesInput.value = partido?.observaciones ?? "";
+
+  // Jugadores extra
+  const { data: extras } = await supabase
+    .from("jugadores_extra_partido")
+    .select(
+      "id, jugador_id, equipo_origen, equipo_jugado, jugador(nombre, apellido)"
+    )
+    .eq("partido_id", partidoId);
+  renderJugadoresExtra(extras);
+
+  // Penalizaciones
+  const { data: penalizaciones } = await supabase
+    .from("penalizaciones_cupo")
+    .select("*")
+    .eq("partido_id", partidoId);
+  renderPenalizaciones(penalizaciones);
+});
+
+// Renderizar jugadores extra
+function renderJugadoresExtra(extras) {
+  jugadoresExtraDiv.innerHTML = "";
+  extras?.forEach((e) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <span>${e.jugador.nombre} ${e.jugador.apellido} (${e.equipo_origen} → ${e.equipo_jugado})</span>
+      <button type="button" data-id="${e.id}" class="borrar-extra">Borrar</button>
+    `;
+    jugadoresExtraDiv.appendChild(div);
+  });
+}
+
+// Renderizar penalizaciones
+function renderPenalizaciones(penalizaciones) {
+  penalizacionesDiv.innerHTML = "";
+  penalizaciones?.forEach((p) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <span>${p.equipo} (${p.penalizacion})</span>
+      <button type="button" data-id="${p.id}" class="borrar-penal">Borrar</button>
+    `;
+    penalizacionesDiv.appendChild(div);
+  });
+}
+
+// Guardar acta
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = selectPartido.value;
+  const golesLocal = parseInt(golesLocalInput.value);
+  const golesVisitante = parseInt(golesVisitanteInput.value);
+  const observaciones = observacionesInput.value;
+
+  const { error } = await supabase
+    .from("partidos")
+    .update({
+      resultado_local: golesLocal,
+      resultado_visitante: golesVisitante,
+      observaciones,
+    })
+    .eq("id", id);
+  if (error) return console.error(error);
+
+  alert("Acta guardada correctamente.");
+  cargarPartidos();
+});
+
+// -------------------- Borrar jugadores extra y penalizaciones --------------------
+jugadoresExtraDiv.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("borrar-extra")) return;
+  const id = e.target.dataset.id;
+  const { error } = await supabase
+    .from("jugadores_extra_partido")
+    .delete()
+    .eq("id", id);
+  if (error) return console.error(error);
+  e.target.parentElement.remove();
+});
+
+penalizacionesDiv.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("borrar-penal")) return;
+  const id = e.target.dataset.id;
+  const { error } = await supabase
+    .from("penalizaciones_cupo")
+    .delete()
+    .eq("id", id);
+  if (error) return console.error(error);
+  e.target.parentElement.remove();
+});
+
+// -------------------- Pestañas y carga inicial --------------------
 const tabs = document.querySelectorAll(".tab");
 const contents = document.querySelectorAll(".tab-content");
 
@@ -232,10 +338,6 @@ function activarPestaña(id) {
   localStorage.setItem("pestaña-activa", id);
 
   if (id === "equipos") cargarEquipos();
-  if (id === "asistencia") {
-    cargarPartidosAsistencia();
-    cargarTablaAsistencia();
-  }
 }
 
 tabs.forEach((tab) =>
@@ -246,192 +348,5 @@ const pestañaGuardada = localStorage.getItem("pestaña-activa");
 if (pestañaGuardada) activarPestaña(pestañaGuardada);
 else activarPestaña("clasificacion");
 
-// -------------------- Acta de resultados --------------------
-const form = document.getElementById("form-resultado");
-const selectPartido = document.getElementById("select-partido");
-const golesLocalInput = document.getElementById("goles-local");
-const golesVisitanteInput = document.getElementById("goles-visitante");
-
-selectPartido.addEventListener("change", () => {
-  const option = selectPartido.selectedOptions[0];
-  golesLocalInput.value = option.dataset.golesLocal;
-  golesVisitanteInput.value = option.dataset.golesVisitante;
-});
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const id = selectPartido.value;
-  const golesLocal = parseInt(golesLocalInput.value);
-  const golesVisitante = parseInt(golesVisitanteInput.value);
-
-  const { error } = await supabase
-    .from("partidos")
-    .update({
-      resultado_local: golesLocal,
-      resultado_visitante: golesVisitante,
-    })
-    .eq("id", id);
-
-  if (error) return console.error(error);
-  cargarPartidos();
-});
-
-// -------------------- Asistencia --------------------
-const selectPartidoAsistencia = document.getElementById(
-  "select-partido-asistencia"
-);
-const listaJugadoresPartidoDiv = document.getElementById(
-  "lista-jugadores-partido"
-);
-const formAsistencia = document.getElementById("form-asistencia");
-const tablaAsistenciaBody = document.querySelector("#tabla-asistencia tbody");
-
-async function cargarPartidosAsistencia() {
-  const { data: partidos, error } = await supabase
-    .from("partidos")
-    .select(`id, fecha, equipo_local(nombre), equipo_visitante(nombre)`)
-    .order("fecha");
-  if (error) return console.error(error);
-
-  selectPartidoAsistencia.innerHTML = "";
-  const placeholderOption = document.createElement("option");
-  placeholderOption.textContent = "Selecciona el partido";
-  placeholderOption.disabled = true;
-  placeholderOption.selected = true;
-  selectPartidoAsistencia.appendChild(placeholderOption);
-
-  partidos.forEach((p) => {
-    const option = document.createElement("option");
-    option.value = p.id;
-    option.textContent = `${p.equipo_local.nombre} vs ${
-      p.equipo_visitante.nombre
-    } (${formatearFecha(p.fecha)})`;
-    selectPartidoAsistencia.appendChild(option);
-  });
-}
-
-selectPartidoAsistencia.addEventListener("change", () => {
-  cargarJugadoresAsistencia(selectPartidoAsistencia.value);
-});
-
-async function cargarJugadoresAsistencia(partidoId) {
-  listaJugadoresPartidoDiv.innerHTML = "Cargando...";
-
-  const { data: partido, error } = await supabase
-    .from("partidos")
-    .select(`equipo_local(nombre), equipo_visitante(nombre)`)
-    .eq("id", partidoId)
-    .single();
-  if (error) return console.error(error);
-
-  const equipoNombres = [
-    partido.equipo_local.nombre,
-    partido.equipo_visitante.nombre,
-  ];
-
-  const { data: jugadores, error: errJugadores } = await supabase
-    .from("jugadores")
-    .select("id, nombre, apellido, equipo")
-    .in("equipo", equipoNombres)
-    .order("apellido", { ascending: true })
-    .order("nombre", { ascending: true });
-  if (errJugadores) return console.error(errJugadores);
-
-  const { data: asistencias } = await supabase
-    .from("asistencia")
-    .select("jugador_id, presente")
-    .eq("partido_id", partidoId);
-
-  const asistMap = {};
-  if (asistencias)
-    asistencias.forEach((a) => (asistMap[a.jugador_id] = a.presente));
-
-  listaJugadoresPartidoDiv.innerHTML = "";
-  jugadores.forEach((j) => {
-    const div = document.createElement("div");
-    div.innerHTML = `<label>
-      <input type="checkbox" value="${j.id}" ${asistMap[j.id] ? "checked" : ""}>
-      ${j.apellido}, ${j.nombre}
-    </label>`;
-    listaJugadoresPartidoDiv.appendChild(div);
-  });
-}
-
-formAsistencia.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const partidoId = selectPartidoAsistencia.value;
-  const checkboxes = listaJugadoresPartidoDiv.querySelectorAll(
-    "input[type=checkbox]"
-  );
-
-  for (const cb of checkboxes) {
-    const jugadorId = parseInt(cb.value);
-    const presente = cb.checked;
-
-    const { error } = await supabase
-      .from("asistencia")
-      .upsert({ partido_id: partidoId, jugador_id: jugadorId, presente })
-      .eq("partido_id", partidoId)
-      .eq("jugador_id", jugadorId);
-    if (error) console.error(error);
-  }
-
-  alert("Asistencia guardada correctamente.");
-  cargarTablaAsistencia();
-});
-
-async function cargarTablaAsistencia() {
-  const { data: jugadores, error: errJugadores } = await supabase
-    .from("jugadores")
-    .select("id, nombre, apellido")
-    .order("apellido", { ascending: true })
-    .order("nombre", { ascending: true });
-  if (errJugadores) return console.error(errJugadores);
-
-  const { data: asistencias, error: errAsist } = await supabase
-    .from("asistencia")
-    .select("jugador_id, presente");
-  if (errAsist) return console.error(errAsist);
-
-  const asistenciaPorJugador = {};
-  jugadores.forEach((j) => (asistenciaPorJugador[j.id] = 0));
-  asistencias.forEach((a) => {
-    if (a.presente && asistenciaPorJugador[a.jugador_id] !== undefined) {
-      asistenciaPorJugador[a.jugador_id]++;
-    }
-  });
-
-  const TOTAL_PARTIDOS = 4;
-
-  tablaAsistenciaBody.innerHTML = jugadores
-    .map((j) => {
-      const partidos = asistenciaPorJugador[j.id];
-      const porcentaje = ((partidos / TOTAL_PARTIDOS) * 100).toFixed(0);
-      return `<tr>
-        <td>${j.apellido}, ${j.nombre}</td>
-        <td>${partidos}</td>
-        <td>${porcentaje}%</td>
-      </tr>`;
-    })
-    .join("");
-}
-
-const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-scrollTopBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// Opcional: mostrar solo al hacer scroll
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 200) {
-    scrollTopBtn.style.opacity = "1";
-    scrollTopBtn.style.pointerEvents = "auto";
-  } else {
-    scrollTopBtn.style.opacity = "0";
-    scrollTopBtn.style.pointerEvents = "none";
-  }
-});
-
-// -------------------- Carga inicial --------------------
+// Carga inicial
 cargarPartidos();

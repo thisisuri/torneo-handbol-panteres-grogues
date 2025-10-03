@@ -27,7 +27,7 @@
     <!-- PESTAÑAS -->
     <div class="tabs">
       <div class="tab" data-tab="clasificacion">Clasificación</div>
-      <div class="tab" data-tab="calendario">Calendario de partidos</div>
+      <div class="tab" data-tab="calendario">Calendario</div>
       <div class="tab" data-tab="reglamento">Reglamento</div>
       <div class="tab" data-tab="equipos">Equipos</div>
       <div class="tab" data-tab="acta">Acta del partido</div>
@@ -221,6 +221,17 @@
           Goles equipo visitante:
           <input type="number" id="goles-visitante" min="0" />
         </label>
+        <label for="jugadores-extra">Jugadores extra:</label>
+        <div id="jugadores-extra"></div>
+        <label for="penalizaciones-cupo">Penalizaciones:</label>
+        <div id="penalizaciones-cupo"></div>
+        <label for="observaciones">Observaciones:</label>
+        <textarea
+          id="observaciones"
+          rows="4"
+          placeholder="Añade tu comentario..."
+        ></textarea>
+
         <br />
         <button type="submit">Confirmar resultado</button>
       </form>
