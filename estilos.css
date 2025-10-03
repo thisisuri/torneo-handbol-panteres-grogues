@@ -322,6 +322,23 @@ tbody tr:hover {
   background-color: #f9f9f9;
 }
 
+/* -------------------- Equipos -------------------- */
+#lista-equipos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columnas en desktop */
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.equipo {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
 
 /* -------------------- Media Queries para móvil -------------------- */
 @media (max-width: 768px) {
@@ -390,6 +407,10 @@ tbody tr:hover {
 
   .equipo li {
     font-size: 18px !important;
+  }
+
+    #lista-equipos {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* -------------------- Reglamento -------------------- */
