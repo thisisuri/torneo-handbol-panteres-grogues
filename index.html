@@ -11,6 +11,14 @@
       type="image/x-icon"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* Leyendas compactas para tablas */
+      .leyenda-tabla {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+        color: #555;
+      }
+    </style>
   </head>
   <body>
     <div class="cover-container">
@@ -37,30 +45,41 @@
     <!-- CONTENIDO DE PESTAÑAS -->
     <div id="clasificacion" class="tab-content">
       <h1>Clasificación</h1>
+
+      <!-- Leyenda compacta para clasificación -->
+      <p class="leyenda-tabla">
+        G = Ganados | E = Empatados | P = Perdidos | GF = Goles a favor | GC =
+        Goles en contra | DG = Dif. goles | Pt = Puntos
+      </p>
+
       <table id="tabla-clasificacion" class="table-wrapper">
         <thead>
           <tr>
             <th>Equipo</th>
-            <th>Ganados</th>
-            <th>Empatados</th>
-            <th>Perdidos</th>
-            <th>Goles a favor</th>
-            <th>Goles en contra</th>
-            <th>Diferencia de goles</th>
-            <th>Puntos</th>
+            <th>G</th>
+            <th>E</th>
+            <th>P</th>
+            <th>GF</th>
+            <th>GC</th>
+            <th>DG</th>
+            <th>Pt</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
 
       <h2>Resultados de los partidos</h2>
+
+      <!-- Leyenda compacta para resultados -->
+      <p class="leyenda-tabla">L = Local | V = Visitante | R = Resultado</p>
+
       <table id="tabla-resultados" class="table-wrapper">
         <thead>
           <tr>
             <th>Fecha</th>
-            <th>Local</th>
-            <th>Visitante</th>
-            <th>Resultado</th>
+            <th>L</th>
+            <th>V</th>
+            <th>R</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -69,15 +88,22 @@
 
     <div id="calendario" class="tab-content">
       <h1>Calendario de partidos</h1>
+
+      <!-- Leyenda compacta para calendario -->
+      <p class="leyenda-tabla">
+        F = Fecha | U = Ubicación | L = Local | V = Visitante | E = Estado | D =
+        Descansan
+      </p>
+
       <table id="tabla-partidos" class="table-wrapper">
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>Ubicación</th>
-            <th>Equipo local</th>
-            <th>Equipo visitante</th>
-            <th>Estado</th>
-            <th>Descansan</th>
+            <th>F</th>
+            <th>U</th>
+            <th>L</th>
+            <th>V</th>
+            <th>E</th>
+            <th>D</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -256,14 +282,19 @@
         <button type="submit">Confirmar asistencia</button>
       </form>
 
+      <!-- Leyenda compacta para asistencia -->
+      <p class="leyenda-tabla">
+        J = Jugador | PJ = Partidos jugados | % = % de asistencia
+      </p>
+
       <!-- Tabla global de asistencia -->
       <h2>Asistencia general por jugador</h2>
       <table id="tabla-asistencia">
         <thead>
           <tr>
-            <th>Jugador</th>
-            <th>Partidos jugados</th>
-            <th>% de asistencia</th>
+            <th>J</th>
+            <th>PJ</th>
+            <th>%</th>
           </tr>
         </thead>
         <tbody></tbody>
