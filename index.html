@@ -46,23 +46,22 @@
     <div id="clasificacion" class="tab-content">
       <h1>Clasificación</h1>
 
-      <!-- Leyenda compacta para clasificación -->
       <p class="leyenda-tabla">
-        G = Ganados | E = Empatados | P = Perdidos | GF = Goles a favor | GC =
-        Goles en contra | DG = Dif. goles | Pt = Puntos
+        EQ = Equipo | G = Ganados | E = Empatados | P = Perdidos | GF = Goles a
+        favor | GC = Goles en contra | DG = Dif. goles | PT = Puntos
       </p>
 
       <table id="tabla-clasificacion" class="table-wrapper">
         <thead>
           <tr>
-            <th>Equipo</th>
+            <th>EQ</th>
             <th>G</th>
             <th>E</th>
             <th>P</th>
             <th>GF</th>
             <th>GC</th>
             <th>DG</th>
-            <th>Pt</th>
+            <th>PT</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -70,13 +69,14 @@
 
       <h2>Resultados de los partidos</h2>
 
-      <!-- Leyenda compacta para resultados -->
-      <p class="leyenda-tabla">L = Local | V = Visitante | R = Resultado</p>
+      <p class="leyenda-tabla">
+        F = Fecha | L = Local | V = Visitante | R = Resultado
+      </p>
 
       <table id="tabla-resultados" class="table-wrapper">
         <thead>
           <tr>
-            <th>Fecha</th>
+            <th>F</th>
             <th>L</th>
             <th>V</th>
             <th>R</th>
@@ -89,7 +89,6 @@
     <div id="calendario" class="tab-content">
       <h1>Calendario de partidos</h1>
 
-      <!-- Leyenda compacta para calendario -->
       <p class="leyenda-tabla">
         F = Fecha | U = Ubicación | L = Local | V = Visitante | E = Estado | D =
         Descansan
@@ -247,17 +246,68 @@
           Goles equipo visitante:
           <input type="number" id="goles-visitante" min="0" />
         </label>
-        <label>Jugadores extra</label>
-        <div id="jugadores-extra"></div>
-        <button type="button" id="añadir-jugador-extra">
-          Añadir jugador extra
-        </button>
-        <label>Penalizaciones</label>
-        <div id="penalizaciones-cupo"></div>
-        <button type="button" id="añadir-penalizacion">
-          Añadir penalización
-        </button>
-        <label>Observaciones</label>
+
+        <!-- NUEVA SECCIÓN: JUGADORES EXTRA -->
+        <label>Jugadores extra:</label>
+        <p class="leyenda-tabla">
+          En caso de no contar con suficientes jugadores, hay que añadir los
+          jugadores extra de cada equipo y de qué equipo son.
+        </p>
+        <div class="jugadores-extra-container">
+          <div class="jugadores-extra-equipo">
+            <label>Equipo local:</label>
+            <div class="contador-jugadores" data-equipo="local">
+              <select class="equipo-extra-local"></select>
+              <input
+                type="number"
+                class="extra-contador"
+                min="0"
+                max="3"
+                value="0"
+              />
+            </div>
+          </div>
+          <div class="jugadores-extra-equipo">
+            <label>Equipo visitante:</label>
+            <div class="contador-jugadores" data-equipo="visitante">
+              <select class="equipo-extra-visitante"></select>
+              <input
+                type="number"
+                class="extra-contador"
+                min="0"
+                max="3"
+                value="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- NUEVA SECCIÓN: PENALIZACIONES -->
+        <label>Penalizaciones:</label>
+        <p class="leyenda-tabla">
+          La inasistencia injustificada perjudica al equipo, por lo que se
+          recomienda planificar la disponibilidad.
+        </p>
+        <div class="penalizaciones-container">
+          <label
+            ><input
+              type="checkbox"
+              class="penal-checkbox"
+              data-equipo="local"
+            />
+            Equipo local</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              class="penal-checkbox"
+              data-equipo="visitante"
+            />
+            Equipo visitante</label
+          >
+        </div>
+
+        <label>Observaciones:</label>
         <textarea
           id="observaciones"
           rows="3"
@@ -272,7 +322,6 @@
     <div id="asistencia" class="tab-content">
       <h1>Control de asistencia</h1>
 
-      <!-- Selección de partido para marcar asistencia -->
       <form id="form-asistencia">
         <label>
           Partido:
@@ -282,13 +331,10 @@
         <button type="submit">Confirmar asistencia</button>
       </form>
 
-      <!-- Leyenda compacta para asistencia -->
+      <h2>Asistencia general por jugador</h2>
       <p class="leyenda-tabla">
         J = Jugador | PJ = Partidos jugados | % = % de asistencia
       </p>
-
-      <!-- Tabla global de asistencia -->
-      <h2>Asistencia general por jugador</h2>
       <table id="tabla-asistencia">
         <thead>
           <tr>
