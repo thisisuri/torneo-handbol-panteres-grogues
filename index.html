@@ -253,12 +253,24 @@
           En caso de no contar con suficientes jugadores, hay que añadir los
           jugadores extra de cada equipo y de qué equipo son.
         </p>
+
         <div class="jugadores-extra-container">
           <div class="jugadores-extra-equipo">
             <label>Equipo local:</label>
             <div class="contador-jugadores" data-equipo="local">
-              <select class="equipo-extra-local"></select>
+              <label for="equipo-extra-local" class="sr-only"
+                >Selecciona equipo extra local</label
+              >
+              <select
+                id="equipo-extra-local"
+                class="equipo-extra-local"
+              ></select>
+
+              <label for="extra-contador-local" class="sr-only"
+                >Cantidad de jugadores extra local</label
+              >
               <input
+                id="extra-contador-local"
                 type="number"
                 class="extra-contador"
                 min="0"
@@ -267,11 +279,23 @@
               />
             </div>
           </div>
+
           <div class="jugadores-extra-equipo">
             <label>Equipo visitante:</label>
             <div class="contador-jugadores" data-equipo="visitante">
-              <select class="equipo-extra-visitante"></select>
+              <label for="equipo-extra-visitante" class="sr-only"
+                >Selecciona equipo extra visitante</label
+              >
+              <select
+                id="equipo-extra-visitante"
+                class="equipo-extra-visitante"
+              ></select>
+
+              <label for="extra-contador-visitante" class="sr-only"
+                >Cantidad de jugadores extra visitante</label
+              >
               <input
+                id="extra-contador-visitante"
                 type="number"
                 class="extra-contador"
                 min="0"

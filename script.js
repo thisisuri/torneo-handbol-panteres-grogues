@@ -35,13 +35,13 @@ async function cargarPartidos() {
   const tbodyPartidos = document.querySelector("#tabla-partidos tbody");
   tbodyPartidos.innerHTML = "";
   const selectPartido = document.getElementById("select-partido");
-  selectPartido.innerHTML = "";
+  if (selectPartido) selectPartido.innerHTML = "";
 
   const placeholderOption = document.createElement("option");
   placeholderOption.textContent = "Selecciona el partido";
   placeholderOption.disabled = true;
   placeholderOption.selected = true;
-  selectPartido.appendChild(placeholderOption);
+  if (selectPartido) selectPartido.appendChild(placeholderOption);
 
   partidos.forEach((p) => {
     const estado =
@@ -66,14 +66,16 @@ async function cargarPartidos() {
     `;
     tbodyPartidos.appendChild(tr);
 
-    const option = document.createElement("option");
-    option.value = p.id;
-    option.textContent = `${p.equipo_local?.nombre ?? "N/A"} vs ${
-      p.equipo_visitante?.nombre ?? "N/A"
-    } (${formatearFecha(p.fecha)})`;
-    option.dataset.golesLocal = p.resultado_local ?? "";
-    option.dataset.golesVisitante = p.resultado_visitante ?? "";
-    selectPartido.appendChild(option);
+    if (selectPartido) {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = `${p.equipo_local?.nombre ?? "N/A"} vs ${
+        p.equipo_visitante?.nombre ?? "N/A"
+      } (${formatearFecha(p.fecha)})`;
+      option.dataset.golesLocal = p.resultado_local ?? "";
+      option.dataset.golesVisitante = p.resultado_visitante ?? "";
+      selectPartido.appendChild(option);
+    }
   });
 
   cargarClasificacion(partidos);
@@ -238,6 +240,9 @@ function activarPestaña(id) {
     cargarPartidosAsistencia();
     cargarTablaAsistencia();
   }
+  if (id === "acta") {
+    inicializarActa(); // <<< aquí inicializamos acta de resultados
+  }
 }
 
 tabsList.forEach((tab) =>
@@ -249,101 +254,119 @@ if (pestañaGuardada) activarPestaña(pestañaGuardada);
 else activarPestaña("clasificacion");
 
 // -------------------- Acta de resultados --------------------
-const formActa = document.getElementById("form-resultado");
-const selectPartidoActa = document.getElementById("select-partido");
-const golesLocal = document.getElementById("goles-local");
-const golesVisitante = document.getElementById("goles-visitante");
-const observaciones = document.getElementById("observaciones");
-const jugadoresExtraDiv = document.getElementById("jugadores-extra");
-const penalizacionesDiv = document.getElementById("penalizaciones-cupo");
-const btnAñadirExtra = document.getElementById("añadir-jugador-extra");
-const btnAñadirPenal = document.getElementById("añadir-penalizacion");
+function inicializarActa() {
+  const formActa = document.getElementById("form-resultado");
+  const selectPartidoActa = document.getElementById("select-partido");
+  const golesLocal = document.getElementById("goles-local");
+  const golesVisitante = document.getElementById("goles-visitante");
+  const observaciones = document.getElementById("observaciones");
 
-// Renderizar jugadores extra según nueva estructura
-function renderContadorJugadoresExtra(equipo, valor = 0) {
-  const div = document.createElement("div");
-  div.classList.add("extra-item");
-  div.innerHTML = `
-    <label>${equipo}:
-      <input type="number" class="extra-contador" data-equipo="${equipo}" value="${valor}" min="0" max="3">
-    </label>
-  `;
-  jugadoresExtraDiv.appendChild(div);
+  const jugadoresExtraContainer = document.querySelector(
+    ".jugadores-extra-container"
+  );
+  const penalizacionesContainer = document.querySelector(
+    ".penalizaciones-container"
+  );
+
+  if (
+    !formActa ||
+    !selectPartidoActa ||
+    !golesLocal ||
+    !golesVisitante ||
+    !observaciones
+  )
+    return;
+
+  async function cargarPartidosActa() {
+    const { data: partidos, error } = await supabase
+      .from("partidos")
+      .select(`id, fecha, equipo_local, equipo_visitante`)
+      .order("fecha", { ascending: true });
+    if (error) return console.error(error);
+
+    selectPartidoActa.innerHTML =
+      "<option disabled selected>Selecciona el partido</option>";
+
+    partidos.forEach((p) => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = `${p.equipo_local} vs ${
+        p.equipo_visitante
+      } (${formatearFecha(p.fecha)})`;
+      selectPartidoActa.appendChild(option);
+    });
+  }
+
+  selectPartidoActa.addEventListener("change", async () => {
+    const partidoId = selectPartidoActa.value;
+    const { data: partido, error } = await supabase
+      .from("partidos")
+      .select("*")
+      .eq("id", partidoId)
+      .single();
+    if (error) return console.error(error);
+
+    golesLocal.value = partido.resultado_local ?? "";
+    golesVisitante.value = partido.resultado_visitante ?? "";
+    observaciones.value = partido.observaciones ?? "";
+
+    // Resetear extra y penalizaciones
+    jugadoresExtraContainer
+      .querySelectorAll("input")
+      .forEach((input) => (input.value = 0));
+    penalizacionesContainer
+      .querySelectorAll("input")
+      .forEach((input) => (input.checked = false));
+  });
+
+  formActa.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const partidoId = selectPartidoActa.value;
+    if (!partidoId) return alert("Selecciona un partido primero");
+
+    const extra_local =
+      parseInt(
+        jugadoresExtraContainer.querySelector(
+          '[data-equipo="local"] .extra-contador'
+        ).value
+      ) || 0;
+    const extra_visitante =
+      parseInt(
+        jugadoresExtraContainer.querySelector(
+          '[data-equipo="visitante"] .extra-contador'
+        ).value
+      ) || 0;
+
+    const penal_local = penalizacionesContainer.querySelector(
+      '[data-equipo="local"]'
+    ).checked;
+    const penal_visitante = penalizacionesContainer.querySelector(
+      '[data-equipo="visitante"]'
+    ).checked;
+
+    const golesL = parseInt(golesLocal.value) || 0;
+    const golesV = parseInt(golesVisitante.value) || 0;
+
+    const { error: errUpdatePartido } = await supabase
+      .from("partidos")
+      .update({
+        resultado_local: golesL,
+        resultado_visitante: golesV,
+        observaciones: observaciones.value,
+        extra_local,
+        extra_visitante,
+        penal_local,
+        penal_visitante,
+      })
+      .eq("id", partidoId);
+
+    if (errUpdatePartido) console.error(errUpdatePartido);
+    alert("Datos del partido guardados correctamente.");
+    cargarPartidos();
+  });
+
+  cargarPartidosActa();
 }
-
-// Renderizar penalizaciones
-function renderCheckboxPenalizacion(equipo, valor = false) {
-  const div = document.createElement("div");
-  div.classList.add("penal-item");
-  div.innerHTML = `
-    <label>
-      <input type="checkbox" class="penal-checkbox" data-equipo="${equipo}" ${
-    valor ? "checked" : ""
-  }>
-      ${equipo}
-    </label>
-  `;
-  penalizacionesDiv.appendChild(div);
-}
-
-selectPartidoActa.addEventListener("change", async () => {
-  const partidoId = selectPartidoActa.value;
-  const { data: partido, error } = await supabase
-    .from("partidos")
-    .select("*")
-    .eq("id", partidoId)
-    .single();
-  if (error) return console.error(error);
-
-  golesLocal.value = partido.resultado_local ?? "";
-  golesVisitante.value = partido.resultado_visitante ?? "";
-  observaciones.value = partido.observaciones ?? "";
-
-  // Resetear extra y penalizaciones
-  jugadoresExtraDiv.innerHTML = "";
-  penalizacionesDiv.innerHTML = "";
-
-  // Mostrar selectores de jugadores extra
-  renderContadorJugadoresExtra("local");
-  renderContadorJugadoresExtra("visitante");
-
-  // Mostrar penalizaciones
-  renderCheckboxPenalizacion("local");
-  renderCheckboxPenalizacion("visitante");
-});
-
-formActa.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const partidoId = selectPartidoActa.value;
-  const golesL = parseInt(golesLocal.value);
-  const golesV = parseInt(golesVisitante.value);
-
-  const extraItems = jugadoresExtraDiv.querySelectorAll(".extra-contador");
-  const penalItems = penalizacionesDiv.querySelectorAll(".penal-checkbox");
-
-  const extra_local = parseInt(extraItems[0].value) || 0;
-  const extra_visitante = parseInt(extraItems[1].value) || 0;
-  const penal_local = penalItems[0].checked;
-  const penal_visitante = penalItems[1].checked;
-
-  const { error: errUpdatePartido } = await supabase
-    .from("partidos")
-    .update({
-      resultado_local: golesL,
-      resultado_visitante: golesV,
-      observaciones: observaciones.value,
-      extra_local,
-      extra_visitante,
-      penal_local,
-      penal_visitante,
-    })
-    .eq("id", partidoId);
-
-  if (errUpdatePartido) console.error(errUpdatePartido);
-
-  alert("Datos del partido guardados correctamente.");
-  cargarPartidos();
-});
 
 // -------------------- Asistencia --------------------
 const selectPartidoAsistencia = document.getElementById(
@@ -358,6 +381,8 @@ const tablaAsistenciaBody = document.querySelector("#tabla-asistencia tbody");
 async function cargarPartidosAsistencia() {
   const { data: partidos, error } = await supabase.from("partidos").select("*");
   if (error) return console.error(error);
+
+  partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
   selectPartidoAsistencia.innerHTML = "";
   partidos.forEach((p) => {
@@ -406,10 +431,9 @@ formAsistencia.addEventListener("submit", async (e) => {
 });
 
 async function cargarTablaAsistencia() {
-  const { data: asistencias, error } = await supabase.from("asistencias")
-    .select(`
-    jugador_id, partido_id
-  `);
+  const { data: asistencias, error } = await supabase
+    .from("asistencias")
+    .select(`jugador_id, partido_id`);
   if (error) return console.error(error);
   tablaAsistenciaBody.innerHTML = "";
   asistencias.forEach((a) => {
