@@ -410,8 +410,11 @@ selectPartidoAsistencia.addEventListener("change", async () => {
 
   listaJugadoresPartidoDiv.innerHTML = "";
 
-  // Ordenar jugadores por apellido
-  jugadores.sort((a, b) => a.apellido.localeCompare(b.apellido));
+  // Ordenar jugadores por apellido, y si hay empate, por nombre
+  jugadores.sort((a, b) => {
+    const cmp = a.apellido.localeCompare(b.apellido);
+    return cmp !== 0 ? cmp : a.nombre.localeCompare(b.nombre);
+  });
 
   jugadores.forEach((j) => {
     const label = document.createElement("label");
