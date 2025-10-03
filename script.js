@@ -241,7 +241,7 @@ function activarPestaña(id) {
     cargarTablaAsistencia();
   }
   if (id === "acta") {
-    inicializarActa(); // <<< aquí inicializamos acta de resultados
+    inicializarActa();
   }
 }
 
@@ -310,7 +310,6 @@ function inicializarActa() {
     golesVisitante.value = partido.resultado_visitante ?? "";
     observaciones.value = partido.observaciones ?? "";
 
-    // Resetear extra y penalizaciones
     jugadoresExtraContainer
       .querySelectorAll("input")
       .forEach((input) => (input.value = 0));
@@ -414,15 +413,22 @@ selectPartidoAsistencia.addEventListener("change", async () => {
 formAsistencia.addEventListener("submit", async (e) => {
   e.preventDefault();
   const partidoId = selectPartidoAsistencia.value;
+  if (!partidoId) return alert("Selecciona un partido primero");
+
   const checkboxes = listaJugadoresPartidoDiv.querySelectorAll(
     'input[name="asistencia"]:checked'
   );
   const asistencias = Array.from(checkboxes).map((c) => c.value);
 
+  // Inserción/upsert en la tabla correcta con 'presente: true'
   const { error } = await supabase
-    .from("asistencias")
+    .from("asistencia")
     .upsert(
-      asistencias.map((jugador_id) => ({ partido_id: partidoId, jugador_id }))
+      asistencias.map((jugador_id) => ({
+        partido_id: partidoId,
+        jugador_id,
+        presente: true,
+      }))
     );
 
   if (error) return console.error(error);
@@ -431,14 +437,34 @@ formAsistencia.addEventListener("submit", async (e) => {
 });
 
 async function cargarTablaAsistencia() {
-  const { data: asistencias, error } = await supabase
-    .from("asistencias")
-    .select(`jugador_id, partido_id`);
-  if (error) return console.error(error);
+  const { data: jugadores, error: errorJugadores } = await supabase
+    .from("jugadores")
+    .select("id, nombre, apellido");
+  if (errorJugadores) return console.error(errorJugadores);
+
+  const { data: asistencias, error: errorAsistencias } = await supabase
+    .from("asistencia")
+    .select("*");
+  if (errorAsistencias) return console.error(errorAsistencias);
+
   tablaAsistenciaBody.innerHTML = "";
-  asistencias.forEach((a) => {
+
+  // Calculamos asistencia por jugador
+  jugadores.forEach((j) => {
+    const totalPartidos = asistencias.filter(
+      (a) => a.jugador_id === j.id
+    ).length;
+    const porcentaje =
+      totalPartidos > 0
+        ? (
+            (totalPartidos /
+              new Set(asistencias.map((a) => a.partido_id)).size) *
+            100
+          ).toFixed(0)
+        : 0;
+
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${a.jugador_id}</td><td>${a.partido_id}</td>`;
+    tr.innerHTML = `<td>${j.nombre} ${j.apellido}</td><td>${totalPartidos}</td><td>${porcentaje}%</td>`;
     tablaAsistenciaBody.appendChild(tr);
   });
 }
