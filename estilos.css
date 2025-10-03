@@ -116,10 +116,12 @@ button:hover {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* scroll suave en móvil */
   margin-bottom: 20px;
 }
 
-table {
+.table-wrapper table {
+  min-width: 600px; /* ancho mínimo para forzar scroll en pantallas pequeñas */
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
@@ -153,7 +155,9 @@ tbody tr:hover {
 .cover-container {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 40vh; /* adaptable */
+  min-height: 200px;
+  max-height: 400px;
   overflow: hidden;
   margin-bottom: 30px;
 }
@@ -262,7 +266,7 @@ tbody tr:hover {
 #lista-jugadores {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* separación entre jugadores */
+  gap: 8px;
   margin-top: 15px;
 }
 
@@ -274,7 +278,6 @@ tbody tr:hover {
   cursor: pointer;
 }
 
-/* Ajuste para el checkbox */
 #lista-jugadores div label input[type="checkbox"] {
   width: 20px;
   height: 20px;
@@ -309,7 +312,6 @@ tbody tr:hover {
 #tabla-asistencia th,
 #tabla-asistencia td {
   border: none;
-  border-radius: none;
   padding: 8px;
   text-align: center;
 }
@@ -325,7 +327,7 @@ tbody tr:hover {
 /* -------------------- Equipos -------------------- */
 #lista-equipos {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columnas en desktop */
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   width: 100%;
   max-width: 1200px;
@@ -340,10 +342,33 @@ tbody tr:hover {
   text-align: center;
 }
 
+
+#scrollTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  z-index: 100;
+  background-color: #006ba1;
+  color: #ffd100;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#scrollTopBtn:hover {
+  background-color: #ffd100;
+  color: #006ba1;
+  transform: scale(1.1);
+}
+
 /* -------------------- Media Queries para móvil -------------------- */
 @media (max-width: 768px) {
 
-  /* Ajustes generales */
   body {
     padding: 15px;
   }
@@ -365,42 +390,45 @@ tbody tr:hover {
   }
 
   .cover-container {
-    height: 250px;
+    height: 30vh;
+    min-height: 200px;
   }
 
   .cover-title {
     font-size: 28px;
   }
 
-  /* -------------------- Tablas -------------------- */
-  .table-wrapper {
-    overflow-x: auto;
+    #scrollTopBtn {
+    display: block;
   }
 
-  table {
-    font-size: 18px; 
+  /* --- Tablas responsivas en móvil --- */
+  .table-wrapper table {
+    font-size: 18px;
   }
 
   th, td {
     padding: 14px 10px;
   }
 
-  /* -------------------- Pestañas -------------------- */
+  /* --- Pestañas en 2 columnas --- */
   .tabs {
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .tab {
-    font-size: 18px; /* texto más grande */
+    font-size: 18px;
     padding: 12px 15px;
+    text-align: center;
   }
 
   .tab-content {
     font-size: 18px !important;
   }
 
-  /* -------------------- Equipos -------------------- */
+  /* --- Equipos --- */
   .equipo h2 {
     font-size: 20px !important;
   }
@@ -409,21 +437,28 @@ tbody tr:hover {
     font-size: 18px !important;
   }
 
-    #lista-equipos {
+  #lista-equipos {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* -------------------- Reglamento -------------------- */
+  /* --- Reglamento --- */
   #reglamento h2 {
     font-size: 20px !important;
   }
 
   #reglamento ul li {
-    font-size: 16px !important; /* mantener lectura cómoda */
+    font-size: 16px !important;
   }
 
-  /* -------------------- Select partido -------------------- */
+  /* --- Select partido --- */
   #select-partido {
     font-size: 18px !important;
+  }
+}
+
+/* -------------------- Extra pequeño (móviles <480px) -------------------- */
+@media (max-width: 480px) {
+  #lista-equipos {
+    grid-template-columns: 1fr; /* 1 columna */
   }
 }

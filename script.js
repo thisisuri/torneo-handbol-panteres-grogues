@@ -416,5 +416,22 @@ async function cargarTablaAsistencia() {
     .join("");
 }
 
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// Opcional: mostrar solo al hacer scroll
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 200) {
+    scrollTopBtn.style.opacity = "1";
+    scrollTopBtn.style.pointerEvents = "auto";
+  } else {
+    scrollTopBtn.style.opacity = "0";
+    scrollTopBtn.style.pointerEvents = "none";
+  }
+});
+
 // -------------------- Carga inicial --------------------
 cargarPartidos();
